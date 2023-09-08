@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace project
 {
@@ -11,6 +12,8 @@ namespace project
         public int jobsId;
         public int inTime;
         public int instructNum;
+        public string workStatus = null;//new ready running block exit
+        public string instrucNum=null;
         public int CompareTo(work other)
         {
             if (this.inTime > other.inTime) return 1;

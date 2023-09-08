@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -9,6 +11,8 @@ namespace project
 {
     internal class processSchedulingThread
     {
+        public static Dictionary<int, string[]> strucTable=new Dictionary<int, string[]>();//指令表
+
         public static int timeslice = 3;
         public static int TIMES= timeslice;
         public Thread ProcessScheduling_thread=null;
@@ -19,11 +23,15 @@ namespace project
         }
         public static void schedule()
         {
+            updateStrucTable();
             while(true) 
             {
+                
                 Program.psevent.WaitOne();
                 if(--TIMES!=0)
-                { }
+                {
+                    
+                }
                 else
                 {
                     Console.WriteLine("time up!现在CPU换进程-----");
@@ -48,6 +56,20 @@ namespace project
         public static void wake()
         {
             Program.psevent.Set();
+        }
+
+        public static void updateStrucTable()
+        {
+            StreamReader strucStream = new StreamReader(Program.filePath + "instrc.txt");
+            for (; strucStream.Peek() >= 0;)
+            {
+                string[] eachline=strucStream.ReadLine().Split(',');
+                int num = int.Parse(eachline[0]);
+                string[] tmp = new string[eachline.Length];
+                eachline.CopyTo(tmp, 1);
+                strucTable.Add(num, tmp);
+            }
+            strucStream.Close();
         }
     }
 }

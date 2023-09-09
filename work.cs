@@ -22,7 +22,6 @@ namespace project
             if (this.priority > other.priority) return 1;
             else return -1;
         }
-
         public work() 
         {
             jobsId = 0;

@@ -12,9 +12,12 @@ namespace project
     internal class Program
     {
         public static string filePath = "D:/input2/";
+        public static string buffer=null;
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);
+        public static AutoResetEvent inputLock = new AutoResetEvent(false);
+        public static AutoResetEvent outputLock = new AutoResetEvent(false);
 
         public static List<work> tmpBackUpJob=new List<work>();
         public static List<work> BackUpJob=new List<work>();

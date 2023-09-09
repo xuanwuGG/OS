@@ -14,22 +14,24 @@ namespace project
         public static DateTime lastWriteTime=DateTime.MinValue;
         public static void arrangement()
         {
-            DateTime lastwritetime = File.GetLastWriteTime(Program.filePath+"jobs.txt");
-            if(lastwritetime !=lastWriteTime)//判断文件是否更新,更新就进tmp队列
+            DateTime lastwritetime = File.GetLastWriteTime(Program.filePath+"jobs-input.txt");
+            if (lastwritetime != lastWriteTime)//判断文件是否更新,更新就进tmp队列
             {
                 Console.WriteLine("作业请求更新，开始安排-----");
-                StreamReader input = new StreamReader("D:/jobs.txt");
+                StreamReader input = new StreamReader(Program.filePath + "jobs-input.txt");
                 while (input.Peek() >= 0)
                 {
                     string[] eachline = input.ReadLine().Split(',');
-                    Program.tmpBackUpJob.Add(new work(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2])));
+                    Program.tmpBackUpJob.Add(new work(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2]), int.Parse(eachline[3])));
                 }
-                Program.tmpBackUpJob.Sort();
                 lastWriteTime = lastwritetime;
                 input.Close();
+                Thread.Sleep(100);
+                Console.WriteLine("作业请求更新结束，结束安排-----");
             }
             else
             {
+                Thread.Sleep(100);
                 Console.WriteLine("作业请求未更新，结束安排-----");
             }
 
@@ -42,11 +44,16 @@ namespace project
                     if (tmp.inTime <= clockThread.COUNTTIME)
                     {
                         Console.WriteLine("{0}号作业已经到达申请时间，进入后备队列!", tmp.jobsId);
-                        tmp.workStatus = "New";
+                        tmp.jobStatus = "New";
                         Program.BackUpJob.Add(tmp);
                         Program.tmpBackUpJob.RemoveAt(i);
-                        i = 0;
-                        Thread.Sleep(500);
+                        i = -1;
+                        Thread.Sleep(100);
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0}号作业未到达申请时间，不能进入后备队列!", tmp.jobsId);
+                        Thread.Sleep(100);
                     }
                 }
             }
@@ -61,7 +68,7 @@ namespace project
             //{
             //    Console.WriteLine(tmp.inTime.ToString());
             //}
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
         }
         public jobInThread()
         {

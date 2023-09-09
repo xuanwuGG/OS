@@ -40,7 +40,7 @@ namespace project
                         jobInThread.CheckJob();
                         Program.clevent.WaitOne();
                     }
-                    processSchedulingThread.wake();
+                    Program.psevent.Set();
                     Program.clevent.WaitOne();
                 }
                 finally

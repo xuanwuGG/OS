@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections;
+﻿using OS;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace project
 {
     internal class processSchedulingThread
     {
-        public static Dictionary<int, string[]> strucTable=new Dictionary<int, string[]>();//指令表
+        public static List<work> readyJob=new List<work>();
 
         public static int timeslice = 3;
-        public static int TIMES= timeslice;
         public Thread ProcessScheduling_thread=null;
         public processSchedulingThread()
         {
@@ -23,53 +20,57 @@ namespace project
         }
         public static void schedule()
         {
-            updateStrucTable();
-            while(true) 
+            while (true) 
             {
-                
                 Program.psevent.WaitOne();
-                if(--TIMES!=0)
-                {
-                    
-                }
-                else
-                {
-                    Console.WriteLine("time up!现在CPU换进程-----");
-                    Thread.Sleep(1000);
-                    ProcessScheduling();
-                    Console.WriteLine("成功更换！------");
-                    Thread.Sleep(1000);
-                    TIMES = timeslice;
-                }
+                update();
+                if(readyJob.Count != 0) { CPU.usingCpu(readyJob[0]);}
                 Program.clevent.Set();
             }
         }
-        public static void ProcessScheduling()
+        public static void ProcessScheduling(bool j)
         {
-
+            if(j) 
+            {
+                
+            }
+            else
+            {
+                readyJob.Sort();
+                Console.WriteLine("当前就绪队列如下：");
+                foreach (var work in readyJob) { 
+                    Console.Write(work.jobsId+" ");
+                }
+                Console.WriteLine();
+            }
         }
         public static void SetSchedulingTime(int num)
         {
             timeslice = num;
-            TIMES = timeslice;
-        }
-        public static void wake()
-        {
-            Program.psevent.Set();
         }
 
-        public static void updateStrucTable()
+        public static void update()
         {
-            StreamReader strucStream = new StreamReader(Program.filePath + "instrc.txt");
-            for (; strucStream.Peek() >= 0;)
+            foreach(var wo in Program.BackUpJob)
             {
-                string[] eachline=strucStream.ReadLine().Split(',');
-                int num = int.Parse(eachline[0]);
-                string[] tmp = new string[eachline.Length];
-                eachline.CopyTo(tmp, 1);
-                strucTable.Add(num, tmp);
+                if(wo!=null&&wo.jobStatus.Equals("New"))
+                {
+                    StreamReader strucStream = new StreamReader(Program.filePath + wo.jobsId + ".txt");
+                    List<int> p=new List<int> ();
+                    while (strucStream.Peek() >= 0)
+                    {
+                        var eachline = strucStream.ReadLine().Split(',');
+                        int intTmp = int.Parse(eachline[1]);
+                        p.Add(intTmp);
+                    }
+                    wo.instruct = p;
+                    Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
+                    wo.jobStatus = "Ready";
+                    readyJob.Add(wo);
+                    foreach(var i in wo.instruct) { Console.Write(i+" "); Thread.Sleep(200); }
+                    Thread.Sleep(1000);
+                }
             }
-            strucStream.Close();
         }
     }
 }

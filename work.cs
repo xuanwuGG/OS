@@ -12,11 +12,14 @@ namespace project
         public int jobsId;
         public int inTime;
         public int instructNum;
-        public string workStatus = null;//new ready running block exit
+        public int priority;
+        public string jobStatus = null;//new ready running block exit
         public string instrucNum=null;
+        public List<int> instruct=new List<int>();
+        public int TIMES;
         public int CompareTo(work other)
         {
-            if (this.inTime > other.inTime) return 1;
+            if (this.priority > other.priority) return 1;
             else return -1;
         }
 
@@ -26,11 +29,12 @@ namespace project
             inTime = 0; 
             instructNum = 0;
         }   
-        public work(int jobsId, int inTime, int instructNum)
+        public work(int jobsId, int priority, int inTime, int instructNum)
         {
             this.jobsId = jobsId;
             this.inTime = inTime;
             this.instructNum = instructNum;
+            this.priority = priority;
         } 
     }
 }

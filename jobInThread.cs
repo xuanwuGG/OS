@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace project
 {
@@ -62,12 +58,6 @@ namespace project
                 clockThread.countlock.ExitReadLock();
             }
 
-
-            //Console.WriteLine("当前作业时间到达时间顺序为-----");
-            //foreach (var tmp in Program.BackUpJob)
-            //{
-            //    Console.WriteLine(tmp.inTime.ToString());
-            //}
             Thread.Sleep(100);
         }
         public jobInThread()

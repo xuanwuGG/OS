@@ -8,39 +8,37 @@ using System.Threading.Tasks;
 
 namespace OS
 {
-    internal class inputBlock_thread
+    internal class outputBlock_thread
     {
-        public static ReaderWriterLockSlim bufferLock=new ReaderWriterLockSlim();
-        public static List<work> blockJobs1=new List<work>();
+        Thread outBlock;
+        public static List<work> blockJobs2 = new List<work>();
 
-        Thread inputBlock;
-        public inputBlock_thread() 
+        public outputBlock_thread() 
         {
-            inputBlock = new Thread(inputlock);
-            inputBlock.Start();
+            outBlock = new Thread(outblock);
+            outBlock.Start();
         }
-        public static void inputlock()
+        public static void outblock()
         {
             while(true)
             {
-                Program.inputLock.WaitOne();
+                Program.outputLock.WaitOne();
                 try
                 {
-                    bufferLock.EnterUpgradeableReadLock();
-                    try
-                    {
-                        bufferLock.EnterWriteLock();
-                        Program.buffer = "This is a message from buffer";
-                    }
-                    finally { bufferLock.ExitWriteLock(); }
+                    inputBlock_thread.bufferLock.EnterReadLock();
+                    Console.WriteLine(Program.buffer);
+                    Program.buffer = "";
+                    Console.WriteLine();
                 }
-                finally { bufferLock.ExitUpgradeableReadLock(); }
-
+                finally
+                {
+                    inputBlock_thread.bufferLock.ExitReadLock();
+                }
 
                 work tmpWork = processSchedulingThread.readyJob[0];
                 tmpWork.jobStatus = "Block";
-                blockJobs1.Add(tmpWork);
                 processSchedulingThread.readyJob.RemoveAt(0);
+                blockJobs2.Add(tmpWork);
 
                 try
                 {
@@ -48,26 +46,30 @@ namespace OS
                     try
                     {
                         clockThread.countlock.EnterWriteLock();
-                        Thread.Sleep(1000);
                         clockThread.COUNTTIME++;
                         Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
-                        Thread.Sleep(1000);
                         clockThread.COUNTTIME++;
                         Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
                     }
-                    finally{clockThread.countlock.ExitWriteLock();}
+                    finally
+                    {
+                        clockThread.countlock.ExitWriteLock();
+                    }
                 }
-                finally{clockThread.countlock.ExitUpgradeableReadLock();}
-
-                tmpWork = blockJobs1[0];
-                blockJobs1.RemoveAt(0);
+                finally
+                {
+                    clockThread.countlock.ExitUpgradeableReadLock();
+                }
+                tmpWork = blockJobs2[0];
+                blockJobs2.RemoveAt(0);
                 tmpWork.jobStatus = "Ready";
                 processSchedulingThread.readyJob.Add(tmpWork);
+
             }
         }
         public static void wake()
         {
-            Program.inputLock.Set();
+            Program.outputLock.Set();
         }
     }
 }

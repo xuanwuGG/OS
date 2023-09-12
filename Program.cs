@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OS;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +19,6 @@ namespace project
         public static AutoResetEvent psevent = new AutoResetEvent(false);
         public static AutoResetEvent inputLock = new AutoResetEvent(false);
         public static AutoResetEvent outputLock = new AutoResetEvent(false);
-
         public static List<work> tmpBackUpJob=new List<work>();
         public static List<work> BackUpJob=new List<work>();
 
@@ -27,19 +27,9 @@ namespace project
             clockThread t1=new clockThread();
             jobInThread t2=new jobInThread();
             processSchedulingThread t3=new processSchedulingThread();
+            inputBlock_thread t4=new inputBlock_thread();
+            outputBlock_thread t5=new outputBlock_thread(); 
 
-
-            //List<work> worklist = new List<work>();
-            //worklist.Add(new work(2,9,3));
-            //worklist.Add(new work(3,8,1));
-            //worklist.Add(new work(3,7,1));
-            //worklist.Add(new work(3,5,1));
-            //worklist.Add(new work(3,3,1));
-            //worklist.Sort();
-            //foreach (work item in worklist)
-           //{
-            //    Console.WriteLine(item.inTime.ToString());
-            //}
         }
     }
 }

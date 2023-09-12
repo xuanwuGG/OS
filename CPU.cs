@@ -12,13 +12,11 @@ namespace OS
 {
     internal class CPU
     {
-        public static List<work> runningJobs=new List<work>();
         public int ProgramCounter = 0;
         public CPU() { }
         public static void usingCpu(work t)
         {
             t.jobStatus = "Running";
-            runningJobs.Add(t);
             if(t.instruct.Count==0)
             {
                 Console.WriteLine("{0}号作业已经完成！", t.jobsId);
@@ -27,18 +25,17 @@ namespace OS
             }
             if(t.TIMES==1)
             {
-                if (t.instruct.First() ==1)
+                if (t.instruct.First() !=0)
                 {
                     timeUp(t);
                     return;
                 }
-                else if(t.instruct.First() ==2)
+                else
                 {
-                    timeUp(t);
-                    return;
+                    t.TIMES -= 1;
                 }
             }
-            else if(t.TIMES==0)
+            else if(t.TIMES<=0)
             {
                 timeUp(t);
             }
@@ -47,21 +44,27 @@ namespace OS
                 if(t.instruct.First()==0)
                 {
                     t.TIMES -= 1;
-                    t.instruct.RemoveAt(0);
                 }
                 else if(t.instruct.First()==1)
                 {
                     t.TIMES -= 2;
-                    t.instruct.RemoveAt(0);
                 }
                 else if( t.instruct.First()==2)
                 {
                     CPU_PRO(t);
                     inputBlock_thread.wake();
                     CPU_REC(t);
+                    t.TIMES -= 2;
                 }
+                else
+                {
+                    CPU_PRO(t);
+                    outputBlock_thread.wake();
+                    CPU_REC(t);
+                    t.TIMES -= 2;
+                }
+                t.instruct.RemoveAt(0);
             }
-            runningJobs.RemoveAt(0);
             t.jobStatus = "Ready";
         }
         public static void CPU_PRO(work t)

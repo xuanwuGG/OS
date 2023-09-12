@@ -27,6 +27,7 @@ namespace project
             jobsId = 0;
             inTime = 0; 
             instructNum = 0;
+            TIMES = processSchedulingThread.timeslice;
         }   
         public work(int jobsId, int priority, int inTime, int instructNum)
         {
@@ -34,6 +35,7 @@ namespace project
             this.inTime = inTime;
             this.instructNum = instructNum;
             this.priority = priority;
-        } 
+            TIMES = processSchedulingThread.timeslice;
+        }
     }
 }

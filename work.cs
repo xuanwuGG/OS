@@ -17,6 +17,8 @@ namespace project
         public string instrucNum=null;
         public List<int> instruct=new List<int>();
         public int TIMES;
+        public int queueNum = 0;
+        public bool isReflect = false;
         public int CompareTo(work other)
         {
             if (this.priority > other.priority) return 1;

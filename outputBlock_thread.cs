@@ -35,36 +35,6 @@ namespace OS
                     inputBlock_thread.bufferLock.ExitReadLock();
                 }
 
-                work tmpWork = processSchedulingThread.readyJob[0];
-                tmpWork.jobStatus = "Block";
-                processSchedulingThread.readyJob.RemoveAt(0);
-                blockJobs2.Add(tmpWork);
-
-                try
-                {
-                    clockThread.countlock.EnterUpgradeableReadLock();
-                    try
-                    {
-                        clockThread.countlock.EnterWriteLock();
-                        clockThread.COUNTTIME++;
-                        Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
-                        clockThread.COUNTTIME++;
-                        Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
-                    }
-                    finally
-                    {
-                        clockThread.countlock.ExitWriteLock();
-                    }
-                }
-                finally
-                {
-                    clockThread.countlock.ExitUpgradeableReadLock();
-                }
-                tmpWork = blockJobs2[0];
-                blockJobs2.RemoveAt(0);
-                tmpWork.jobStatus = "Ready";
-                processSchedulingThread.readyJob.Add(tmpWork);
-
             }
         }
         public static void wake()

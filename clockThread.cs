@@ -11,7 +11,6 @@ namespace project
     {
         public static ReaderWriterLockSlim countlock = new ReaderWriterLockSlim();//对共享区COUNTTIME的互斥锁
         public static int COUNTTIME = 0;//时钟
-        public static int times=0;
         public Thread Clock_Thread = null;
         public clockThread()
         {
@@ -36,7 +35,7 @@ namespace project
                     {
                         countlock.ExitWriteLock();
                     }
-                    if (COUNTTIME / 10 == ++times)
+                    if (COUNTTIME % 10 == 0)
                     {
                         jobInThread.CheckJob();
                         Program.clevent.WaitOne();

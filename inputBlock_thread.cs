@@ -35,34 +35,10 @@ namespace OS
                     finally { bufferLock.ExitWriteLock(); }
                 }
                 finally { bufferLock.ExitUpgradeableReadLock(); }
-
-
-                work tmpWork = processSchedulingThread.readyJob[0];
-                tmpWork.jobStatus = "Block";
-                blockJobs1.Add(tmpWork);
-                processSchedulingThread.readyJob.RemoveAt(0);
-
-                try
-                {
-                    clockThread.countlock.EnterUpgradeableReadLock();
-                    try
-                    {
-                        clockThread.countlock.EnterWriteLock();
-                        Thread.Sleep(1000);
-                        clockThread.COUNTTIME++;
-                        Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
-                        Thread.Sleep(1000);
-                        clockThread.COUNTTIME++;
-                        Console.WriteLine("Tick tok:" + clockThread.COUNTTIME.ToString());
-                    }
-                    finally{clockThread.countlock.ExitWriteLock();}
-                }
-                finally{clockThread.countlock.ExitUpgradeableReadLock();}
-
-                tmpWork = blockJobs1[0];
-                blockJobs1.RemoveAt(0);
-                tmpWork.jobStatus = "Ready";
-                processSchedulingThread.readyJob.Add(tmpWork);
+                Program.clevent.Set();
+                Program.psevent.WaitOne();
+                Program.clevent.Set();
+                Program.psevent.WaitOne();
             }
         }
         public static void wake()

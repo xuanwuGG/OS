@@ -16,11 +16,18 @@ namespace OS
         public CPU() { }
         public static void usingCpu(work t)
         {
-            t.jobStatus = "Running";
             if(t.instruct.Count==0)
             {
                 Console.WriteLine("{0}号作业已经完成！", t.jobsId);
-                processSchedulingThread.readyJob.RemoveAt(0);
+                Thread.Sleep(200);
+                processSchedulingThread.readyJob[0].RemoveAt(0);
+                for (int a = 0; a < 3; a++)
+                {
+                    if (processSchedulingThread.readyJob[a].Count!=0)
+                    {
+                        usingCpu(processSchedulingThread.readyJob[a][0]);
+                    }
+                }
                 return;
             }
             if(t.TIMES==1)
@@ -32,7 +39,10 @@ namespace OS
                 }
                 else
                 {
+                    t.jobStatus = "Running";
                     t.TIMES -= 1;
+                    t.instruct.RemoveAt(0);
+                    return;
                 }
             }
             else if(t.TIMES<=0)
@@ -41,7 +51,8 @@ namespace OS
             }
             else
             {
-                if(t.instruct.First()==0)
+                t.jobStatus = "Running";
+                if (t.instruct.First()==0)
                 {
                     t.TIMES -= 1;
                 }
@@ -65,7 +76,6 @@ namespace OS
                 }
                 t.instruct.RemoveAt(0);
             }
-            t.jobStatus = "Ready";
         }
         public static void CPU_PRO(work t)
         {
@@ -77,15 +87,44 @@ namespace OS
         }
         public static void timeUp(work t)
         {
-            Console.WriteLine("{0}时间片结束", t.jobsId);
-            Thread.Sleep(500);
-            work tmpWork = t;
-            processSchedulingThread.readyJob.RemoveAt(0);
-            t.TIMES = processSchedulingThread.timeslice;
-            processSchedulingThread.readyJob.Add(tmpWork);
+            Console.WriteLine("第{0}优先级队列进程{1}时间片结束",t.queueNum, t.jobsId);
+            Thread.Sleep(200);
             t.jobStatus = "Ready";
-            Console.WriteLine("{0}时间片开始", processSchedulingThread.readyJob[0].jobsId);
-            usingCpu(t);
+            if (t.isReflect)
+            {
+                if (t.queueNum == 3)
+                {
+                    Console.WriteLine("{0}已出于最低优先级队列，继续执行", t.jobsId);
+                    Thread.Sleep(200);
+                    t.TIMES = 99;
+                    usingCpu(t);
+                }
+                else
+                {
+                    processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
+                    t.queueNum++;
+                    processSchedulingThread.readyJob[t.queueNum].Add(t);
+                    t.TIMES = processSchedulingThread.timeslice * (t.queueNum + 1);
+                    for (int a = 0; a < 3; a++)
+                    {
+                        if (processSchedulingThread.readyJob[a].Count != 0)
+                        {
+                            Console.WriteLine("第{0}优先级队列进程{1}时间片开始", processSchedulingThread.readyJob[a][0].queueNum, processSchedulingThread.readyJob[a][0].jobsId);
+                            Thread.Sleep(200);
+                            usingCpu(processSchedulingThread.readyJob[a][0]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                processSchedulingThread.readyJob[0].RemoveAt(0);
+                processSchedulingThread.readyJob[0].Add(t);
+                t.TIMES = processSchedulingThread.timeslice;
+                Console.WriteLine("进程{0}时间片开始",processSchedulingThread.readyJob[0][0].jobsId);
+                Thread.Sleep (200);
+                usingCpu(processSchedulingThread.readyJob[0][0]);
+            }
         }
     }
 }

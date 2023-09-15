@@ -40,7 +40,23 @@ namespace project
                         jobInThread.CheckJob();
                         Program.clevent.WaitOne();
                     }
+                    Console.WriteLine("ps进程解锁");
+                    Thread.Sleep(300);
                     Program.psevent.Set();
+                    Console.WriteLine("clock进程加锁");
+                    Thread.Sleep(300);
+                    Program.clevent.WaitOne();
+                    Console.WriteLine("input进程解锁");
+                    Thread.Sleep(300);
+                    Program.inputLock.Set();
+                    Console.WriteLine("clock进程加锁");
+                    Thread.Sleep(300);
+                    Program.clevent.WaitOne();
+                    Console.WriteLine("output进程解锁");
+                    Thread.Sleep(300);
+                    Program.outputLock.Set();
+                    Console.WriteLine("clock进程加锁");
+                    Thread.Sleep(300);
                     Program.clevent.WaitOne();
                 }
                 finally

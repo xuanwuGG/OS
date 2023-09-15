@@ -12,6 +12,7 @@ namespace OS
     {
         public static ReaderWriterLockSlim bufferLock=new ReaderWriterLockSlim();
         public static List<work> blockJobs1=new List<work>();
+        public static int count = 2;
 
         Thread inputBlock;
         public inputBlock_thread() 
@@ -24,21 +25,32 @@ namespace OS
             while(true)
             {
                 Program.inputLock.WaitOne();
-                try
+                Thread.Sleep(1000);
+                if (blockJobs1.Count!=0) 
                 {
-                    bufferLock.EnterUpgradeableReadLock();
-                    try
+                    count--;
+                    if(count==0)
                     {
-                        bufferLock.EnterWriteLock();
-                        Program.buffer = "This is a message from buffer";
+                        try
+                        {
+                            bufferLock.EnterUpgradeableReadLock();
+                            try
+                            {
+                                bufferLock.EnterWriteLock();
+                                Program.buffer = "This is a massage from buffer";
+                            }
+                            finally{bufferLock.ExitWriteLock();}
+                        }
+                        finally { bufferLock.ExitUpgradeableReadLock();}
+                        work tmpWork = blockJobs1[0];
+                        blockJobs1.RemoveAt(0);
+                        processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                     }
-                    finally { bufferLock.ExitWriteLock(); }
                 }
-                finally { bufferLock.ExitUpgradeableReadLock(); }
+                else{count = 2;}
+                Console.WriteLine("input结束，clock进程解锁");
+                Thread.Sleep(300);
                 Program.clevent.Set();
-                Program.psevent.WaitOne();
-                Program.clevent.Set();
-                Program.psevent.WaitOne();
             }
         }
         public static void wake()

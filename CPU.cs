@@ -32,7 +32,7 @@ namespace OS
             }
             if(t.TIMES==1)
             {
-                if (t.instruct.First() !=0)
+                if (t.instruct.First() ==1)
                 {
                     timeUp(t);
                     return;
@@ -62,28 +62,43 @@ namespace OS
                 }
                 else if( t.instruct.First()==2)
                 {
-                    CPU_PRO(t);
-                    inputBlock_thread.wake();
-                    CPU_REC(t);
-                    t.TIMES -= 2;
+                    CPU_PRO(t,2);
                 }
                 else
                 {
-                    CPU_PRO(t);
-                    outputBlock_thread.wake();
-                    CPU_REC(t);
-                    t.TIMES -= 2;
+                    CPU_PRO(t, 3);
                 }
                 t.instruct.RemoveAt(0);
+                t.jobStatus = "Ready";
             }
         }
-        public static void CPU_PRO(work t)
+        public static void CPU_PRO(work t,int sig)
         {
             t.jobStatus = "Block";
+            processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
+            if (sig == 2) 
+            {
+                inputBlock_thread.blockJobs1.Add(t);
+                inputBlock_thread.wake();
+            }
+            else 
+            { 
+                outputBlock_thread.blockJobs2.Add(t);
+                outputBlock_thread.wake();
+            }
+
         }
         public static void CPU_REC(work t)
         {
-            t.jobStatus = "Running";
+            t.jobStatus = "Ready";
+            if(t.queueNum==3)
+            {
+                t.TIMES = 99;
+            }
+            else
+            {
+                t.TIMES = processSchedulingThread.timeslice * (t.queueNum + 1);
+            }
         }
         public static void timeUp(work t)
         {
@@ -94,7 +109,7 @@ namespace OS
             {
                 if (t.queueNum == 3)
                 {
-                    Console.WriteLine("{0}已出于最低优先级队列，继续执行", t.jobsId);
+                    Console.WriteLine("{0}已处于优先级队列，继续执行", t.jobsId);
                     Thread.Sleep(200);
                     t.TIMES = 99;
                     usingCpu(t);

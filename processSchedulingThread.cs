@@ -32,6 +32,8 @@ namespace project
                 Program.psevent.WaitOne();
                 update(algorithm);
                 ProcessScheduling(algorithm);
+                Console.WriteLine("ps结束，clock进程解锁");
+                Thread.Sleep(300);
                 Program.clevent.Set();
                 rub = 0;
             }

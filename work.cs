@@ -19,6 +19,7 @@ namespace project
         public int TIMES;
         public int queueNum = 0;
         public bool isReflect = false;
+        public int instr1Count = 0;
         public int CompareTo(work other)
         {
             if (this.priority > other.priority) return 1;

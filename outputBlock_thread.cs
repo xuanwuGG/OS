@@ -23,7 +23,6 @@ namespace OS
             while (true)
             {
                 Program.outputLock.WaitOne();
-                Thread.Sleep(1000);
                 if (blockJobs2.Count != 0)
                 {
                     count--;
@@ -45,17 +44,11 @@ namespace OS
                         blockJobs2.RemoveAt(0);
                         processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                         CPU.CPU_REC(tmpWork);
+                        count = 2;
                     }
                 }
-                else { count = 2; }
-                Console.WriteLine("output结束，clock进程解锁");
-                Thread.Sleep(300);
                 Program.clevent.Set();
             }
-        }
-        public static void wake()
-        {
-            Program.outputLock.Set();
         }
     }
 }

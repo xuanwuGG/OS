@@ -20,8 +20,8 @@ namespace OS
             {
                 Console.WriteLine("{0}号作业已经完成！", t.jobsId);
                 Thread.Sleep(200);
-                processSchedulingThread.readyJob[0].RemoveAt(0);
-                for (int a = 0; a < 3; a++)
+                processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
+                for (int a = 0; a < 4; a++)
                 {
                     if (processSchedulingThread.readyJob[a].Count!=0)
                     {
@@ -30,47 +30,42 @@ namespace OS
                 }
                 return;
             }
-            if(t.TIMES==1)
+            if(t.TIMES==1&& t.instruct.First() == 1&&t.instr1Count==0)
             {
-                if (t.instruct.First() ==1)
-                {
-                    timeUp(t);
-                    return;
-                }
-                else
-                {
-                    t.jobStatus = "Running";
-                    t.TIMES -= 1;
-                    t.instruct.RemoveAt(0);
-                    return;
-                }
+                timeUp(t);
+                return;
             }
             else if(t.TIMES<=0)
             {
                 timeUp(t);
             }
+            t.jobStatus = "Running";
+            if (t.instruct.First() == 0)
+            {
+                t.instruct.RemoveAt(0);
+                t.TIMES -= 1;
+            }
+            else if (t.instruct.First() == 1)
+            {
+                t.instr1Count++;
+                t.TIMES--;
+                if (t.instr1Count == 2)
+                {
+                    t.instr1Count = 0;
+                    t.instruct.RemoveAt(0);
+                }
+            }
+            else if (t.instruct.First() == 2)
+            {
+                t.instruct.RemoveAt(0);
+                CPU_PRO(t, 2);
+            }
             else
             {
-                t.jobStatus = "Running";
-                if (t.instruct.First()==0)
-                {
-                    t.TIMES -= 1;
-                }
-                else if(t.instruct.First()==1)
-                {
-                    t.TIMES -= 2;
-                }
-                else if( t.instruct.First()==2)
-                {
-                    CPU_PRO(t,2);
-                }
-                else
-                {
-                    CPU_PRO(t, 3);
-                }
                 t.instruct.RemoveAt(0);
-                t.jobStatus = "Ready";
+                CPU_PRO(t, 3);
             }
+            t.jobStatus = "Ready";
         }
         public static void CPU_PRO(work t,int sig)
         {
@@ -79,12 +74,10 @@ namespace OS
             if (sig == 2) 
             {
                 inputBlock_thread.blockJobs1.Add(t);
-                inputBlock_thread.wake();
             }
             else 
             { 
                 outputBlock_thread.blockJobs2.Add(t);
-                outputBlock_thread.wake();
             }
 
         }
@@ -120,13 +113,14 @@ namespace OS
                     t.queueNum++;
                     processSchedulingThread.readyJob[t.queueNum].Add(t);
                     t.TIMES = processSchedulingThread.timeslice * (t.queueNum + 1);
-                    for (int a = 0; a < 3; a++)
+                    for (int a = 0; a < 4; a++)
                     {
                         if (processSchedulingThread.readyJob[a].Count != 0)
                         {
                             Console.WriteLine("第{0}优先级队列进程{1}时间片开始", processSchedulingThread.readyJob[a][0].queueNum, processSchedulingThread.readyJob[a][0].jobsId);
                             Thread.Sleep(200);
                             usingCpu(processSchedulingThread.readyJob[a][0]);
+                            return;
                         }
                     }
                 }

@@ -14,7 +14,7 @@ namespace project
         public static int timeslice = 3;
         public Thread ProcessScheduling_thread=null;
         public static int rub = 0;
-        public static bool algorithm = false;
+        public static bool algorithm = true;
         public processSchedulingThread()
         {
             for(int i=0;i<4;i++)
@@ -27,15 +27,13 @@ namespace project
         }
         public static void schedule()
         {
-            while (true) 
+            while (true)
             {
                 Program.psevent.WaitOne();
                 update(algorithm);
                 ProcessScheduling(algorithm);
-                Console.WriteLine("ps结束，clock进程解锁");
-                Thread.Sleep(300);
-                Program.clevent.Set();
                 rub = 0;
+                Program.inputLock.Set();
             }
         }
         public static void ProcessScheduling(bool j)
@@ -44,7 +42,7 @@ namespace project
             {
                 if(rub==1)
                 {
-                    for(int i=1;i<3;i++)
+                    for(int i=1;i<4;i++)
                     {
                         if (readyJob[i].Count!=0)
                         {
@@ -64,7 +62,7 @@ namespace project
                 }
                 else
                 {
-                    for(int i=0;i<3;i++)
+                    for(int i=0;i<4;i++)
                     {
                         if (readyJob[i].Count != 0)
                         {
@@ -99,7 +97,6 @@ namespace project
                 }
                 wo.instruct = p;
                 Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
-                Thread.Sleep(200);
                 Program.BackUpJob.Remove(wo);
                 wo.jobStatus = "Ready";
                 if (j) { wo.isReflect=true; }

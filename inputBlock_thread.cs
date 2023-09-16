@@ -25,7 +25,6 @@ namespace OS
             while(true)
             {
                 Program.inputLock.WaitOne();
-                Thread.Sleep(1000);
                 if (blockJobs1.Count!=0) 
                 {
                     count--;
@@ -44,18 +43,13 @@ namespace OS
                         finally { bufferLock.ExitUpgradeableReadLock();}
                         work tmpWork = blockJobs1[0];
                         blockJobs1.RemoveAt(0);
+                        Console.WriteLine("2秒时间到，{0}进程回归{1}队列", tmpWork.jobsId, tmpWork.queueNum);
                         processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
+                        count = 2;
                     }
                 }
-                else{count = 2;}
-                Console.WriteLine("input结束，clock进程解锁");
-                Thread.Sleep(300);
-                Program.clevent.Set();
+                Program.outputLock.Set();
             }
-        }
-        public static void wake()
-        {
-            Program.inputLock.Set();
         }
     }
 }

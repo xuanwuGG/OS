@@ -9,7 +9,7 @@ namespace project
 {
     internal class processSchedulingThread
     {
-        public static List<List<work>>readyJob=new List<List<work>>();
+        public static List<List<process>>readyJob=new List<List<process>>();
 
         public static int timeslice = 3;
         public Thread ProcessScheduling_thread=null;
@@ -19,7 +19,7 @@ namespace project
         {
             for(int i=0;i<4;i++)
             {
-                List<work> tmp=new List<work>();
+                List<process> tmp=new List<process>();
                 readyJob.Add(tmp);
             }
             ProcessScheduling_thread = new Thread(schedule);
@@ -86,7 +86,7 @@ namespace project
         {
             for(int i=0;i<Program.BackUpJob.Count;)
             {
-                work wo = Program.BackUpJob[i];
+                process wo = Program.BackUpJob[i];
                 StreamReader strucStream = new StreamReader(Program.filePath + wo.jobsId + ".txt");
                 List<int> p = new List<int>();
                 while (strucStream.Peek() >= 0)
@@ -98,7 +98,7 @@ namespace project
                 wo.instruct = p;
                 Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
                 Program.BackUpJob.Remove(wo);
-                wo.jobStatus = "Ready";
+                wo.PSW = "Ready";
                 if (j) { wo.isReflect=true; }
                 if (readyJob[0].Count == 0) { rub = 1; }
                 readyJob[0].Add(wo);

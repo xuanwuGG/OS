@@ -19,11 +19,13 @@ namespace project
         public static AutoResetEvent psevent = new AutoResetEvent(false);
         public static AutoResetEvent inputLock = new AutoResetEvent(false);
         public static AutoResetEvent outputLock = new AutoResetEvent(false);
-        public static List<work> tmpBackUpJob=new List<work>();
-        public static List<work> BackUpJob=new List<work>();
+        public static List<process> tmpBackUpJob=new List<process>();
+        public static List<process> BackUpJob=new List<process>();
+        public static physicalManager Manager;
 
         static void Main(string[] args)
         {
+            Manager=new physicalManager();
             clockThread t1=new clockThread();
             jobInThread t2=new jobInThread();
             processSchedulingThread t3=new processSchedulingThread();

@@ -14,7 +14,7 @@ namespace OS
     {
         public int ProgramCounter = 0;
         public CPU() { }
-        public static void usingCpu(work t)
+        public static void usingCpu(process t)
         {
             if(t.instruct.Count==0)
             {
@@ -39,7 +39,7 @@ namespace OS
             {
                 timeUp(t);
             }
-            t.jobStatus = "Running";
+            t.PSW = "Running";
             if (t.instruct.First() == 0)
             {
                 t.instruct.RemoveAt(0);
@@ -65,11 +65,11 @@ namespace OS
                 t.instruct.RemoveAt(0);
                 CPU_PRO(t, 3);
             }
-            t.jobStatus = "Ready";
+            t.PSW = "Ready";
         }
-        public static void CPU_PRO(work t,int sig)
+        public static void CPU_PRO(process t,int sig)
         {
-            t.jobStatus = "Block";
+            t.PSW = "Block";
             processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
             if (sig == 2) 
             {
@@ -81,9 +81,9 @@ namespace OS
             }
 
         }
-        public static void CPU_REC(work t)
+        public static void CPU_REC(process t)
         {
-            t.jobStatus = "Ready";
+            t.PSW = "Ready";
             if(t.queueNum==3)
             {
                 t.TIMES = 99;
@@ -93,11 +93,11 @@ namespace OS
                 t.TIMES = processSchedulingThread.timeslice * (t.queueNum + 1);
             }
         }
-        public static void timeUp(work t)
+        public static void timeUp(process t)
         {
             Console.WriteLine("第{0}优先级队列进程{1}时间片结束",t.queueNum, t.jobsId);
             Thread.Sleep(200);
-            t.jobStatus = "Ready";
+            t.PSW = "Ready";
             if (t.isReflect)
             {
                 if (t.queueNum == 3)

@@ -11,8 +11,8 @@ namespace OS
     internal class outputBlock_thread
     {
         Thread outBlock;
-        public static List<work> blockJobs2 = new List<work>();
-        public static int count = 2;
+        public static List<process> blockJobs2 = new List<process>();
+        public static int count = 3;
         public outputBlock_thread() 
         {
             outBlock = new Thread(outblock);
@@ -40,11 +40,11 @@ namespace OS
                             finally { inputBlock_thread.bufferLock.ExitWriteLock(); }
                         }
                         finally {inputBlock_thread.bufferLock.ExitUpgradeableReadLock(); }
-                        work tmpWork = blockJobs2[0];
+                        process tmpWork = blockJobs2[0];
                         blockJobs2.RemoveAt(0);
                         processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                         CPU.CPU_REC(tmpWork);
-                        count = 2;
+                        count = 3;
                     }
                 }
                 Program.clevent.Set();

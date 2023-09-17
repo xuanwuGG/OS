@@ -18,7 +18,7 @@ namespace project
                 while (input.Peek() >= 0)
                 {
                     string[] eachline = input.ReadLine().Split(',');
-                    Program.tmpBackUpJob.Add(new work(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2]), int.Parse(eachline[3])));
+                    Program.tmpBackUpJob.Add(new process(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2]), int.Parse(eachline[3])));
                 }
                 lastWriteTime = lastwritetime;
                 input.Close();
@@ -36,11 +36,11 @@ namespace project
                 clockThread.countlock.EnterReadLock();
                 for (int i = 0; i < Program.tmpBackUpJob.Count; i++)
                 {
-                    work tmp = Program.tmpBackUpJob[i];
+                    process tmp = Program.tmpBackUpJob[i];
                     if (tmp.inTime <= clockThread.COUNTTIME)
                     {
                         Console.WriteLine("{0}号作业已经到达申请时间，进入后备队列!", tmp.jobsId);
-                        tmp.jobStatus = "New";
+                        tmp.PSW = "New";
                         Program.BackUpJob.Add(tmp);
                         Program.tmpBackUpJob.RemoveAt(i);
                         i = -1;

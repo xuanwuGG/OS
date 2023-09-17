@@ -11,8 +11,8 @@ namespace OS
     internal class inputBlock_thread
     {
         public static ReaderWriterLockSlim bufferLock=new ReaderWriterLockSlim();
-        public static List<work> blockJobs1=new List<work>();
-        public static int count = 2;
+        public static List<process> blockJobs1=new List<process>();
+        public static int count = 3;
 
         Thread inputBlock;
         public inputBlock_thread() 
@@ -41,11 +41,11 @@ namespace OS
                             finally{bufferLock.ExitWriteLock();}
                         }
                         finally { bufferLock.ExitUpgradeableReadLock();}
-                        work tmpWork = blockJobs1[0];
+                        process tmpWork = blockJobs1[0];
                         blockJobs1.RemoveAt(0);
                         Console.WriteLine("2秒时间到，{0}进程回归{1}队列", tmpWork.jobsId, tmpWork.queueNum);
                         processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
-                        count = 2;
+                        count = 3;
                     }
                 }
                 Program.outputLock.Set();

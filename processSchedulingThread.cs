@@ -82,7 +82,7 @@ namespace project
             timeslice = num;
         }
 
-        public static void update(bool j)//将处于后备队列作业进入就绪队列
+        public static void update(bool j)
         {
             for(int i=0;i<Program.BackUpJob.Count;)
             {
@@ -97,12 +97,15 @@ namespace project
                 }
                 wo.instruct = p;
                 Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
-                Program.BackUpJob.Remove(wo);
-                wo.PSW = "Ready";
                 if (j) { wo.isReflect=true; }
                 if (readyJob[0].Count == 0) { rub = 1; }
-                readyJob[0].Add(wo);
-                Thread.Sleep(1000);
+                if(Program.manager.allocate(wo))
+                {
+                    Program.BackUpJob.Remove(wo);
+                    wo.PSW = "Ready";
+                    readyJob[0].Add(wo);
+                }
+                Thread.Sleep(100);
             }
         }
     }

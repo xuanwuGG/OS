@@ -21,11 +21,9 @@ namespace project
         public static AutoResetEvent outputLock = new AutoResetEvent(false);
         public static List<process> tmpBackUpJob=new List<process>();
         public static List<process> BackUpJob=new List<process>();
-        public static physicalManager Manager;
-
+        public static memoryManager manager = new memoryManager();
         static void Main(string[] args)
         {
-            Manager=new physicalManager();
             clockThread t1=new clockThread();
             jobInThread t2=new jobInThread();
             processSchedulingThread t3=new processSchedulingThread();

@@ -18,10 +18,13 @@ namespace project
                 while (input.Peek() >= 0)
                 {
                     string[] eachline = input.ReadLine().Split(',');
-                    Program.tmpBackUpJob.Add(new process(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2]), int.Parse(eachline[3])));
+                    Program.tmpBackUpJob.Add(new process(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2])));
                 }
                 lastWriteTime = lastwritetime;
                 input.Close();
+
+                //读指令
+                processSchedulingThread.update(processSchedulingThread.algorithm);
                 Thread.Sleep(100);
                 Console.WriteLine("作业请求更新结束，结束安排-----");
             }
@@ -52,6 +55,8 @@ namespace project
                         Thread.Sleep(100);
                     }
                 }
+                //读指令
+                processSchedulingThread.update(processSchedulingThread.algorithm);
             }
             finally
             {

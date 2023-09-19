@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,17 +22,17 @@ namespace OS
         {
             for (int i = 0; i < unallocatedTable.Count; i++)
             {
-                int tmpLen = unallocatedTable[i][1] - unallocatedTable[i][0];
-                if (tmpLen > t.instructNum)
+                int tmpLen = unallocatedTable[i][1] - unallocatedTable[i][0]+1;
+                if (tmpLen > t.requiredBlocks)
                 {
                     t.sAddress = unallocatedTable[i][0];
-                    allocatedTable.Add(new List<int>() { unallocatedTable[i][0], unallocatedTable[i][0] + t.instructNum - 1 });
-                    unallocatedTable[i][0] = unallocatedTable[i][0]+t.instructNum;
+                    allocatedTable.Add(new List<int>() { unallocatedTable[i][0], unallocatedTable[i][0] + t.requiredBlocks - 1 });
+                    unallocatedTable[i][0] = unallocatedTable[i][0]+t.requiredBlocks;
                     unallocatedTable.OrderBy(m => m[0]).ToList();
                     allocatedTable.OrderBy(m => m[0]).ToList();
                     return true;
                 }
-                else if(tmpLen == t.instructNum)
+                else if(tmpLen == t.requiredBlocks)
                 {
                     t.sAddress = unallocatedTable[i][0];
                     allocatedTable.Add(new List<int>() { unallocatedTable[i][0], unallocatedTable[i][1] });
@@ -41,7 +42,7 @@ namespace OS
                     return true;
                 }
             }
-            Console.WriteLine("Do not have enough space!");
+            Console.WriteLine("内存空间不足，{0}作业需等待!",t.jobsId);
             return false;
         }
         public void free(int startAddress)
@@ -77,6 +78,21 @@ namespace OS
             unallocatedTable.Add(new List<int> { startAddress, endAddress });
             allocatedTable.OrderBy(t => t[0]).ToList();
             unallocatedTable.OrderBy(t => t[0]).ToList();
+        }
+        public  void draw()
+        {
+            int []painting=new int[16];
+            for(int a=0;a<allocatedTable.Count;a++) 
+            {
+                for(int b = allocatedTable[a][0]-1; b < allocatedTable[a][1]; b++)
+                {
+                    painting[b]=1;
+                }
+            }
+            Console.Write("空间:");
+            foreach(var i in painting) { Console.Write(" " +i); }
+            Console.WriteLine();
+            Thread.Sleep(5000);
         }
     }
 }

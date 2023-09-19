@@ -13,6 +13,7 @@ namespace OS
     internal class CPU
     {
         public int ProgramCounter = 0;
+        public static int MMU(process t) { return t.sAddress; }
         public CPU() { }
         public static void usingCpu(process t)
         {
@@ -21,13 +22,14 @@ namespace OS
                 Console.WriteLine("{0}号作业已经完成！", t.jobsId);
                 Thread.Sleep(200);
                 processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
-                for (int a = 0; a < 4; a++)
-                {
-                    if (processSchedulingThread.readyJob[a].Count!=0)
-                    {
-                        usingCpu(processSchedulingThread.readyJob[a][0]);
-                    }
-                }
+                processSchedulingThread.rub = 0;//刷新rub标志
+                Program.manager.draw();
+                Console.ReadKey();
+                Program.manager.free(MMU(t));
+                Program.manager.draw();
+                Console.ReadKey();
+                if (Program.BackUpJob.Count != 0) {processSchedulingThread.push(Program.BackUpJob[0]); }
+                processSchedulingThread.ProcessScheduling(processSchedulingThread.algorithm);
                 return;
             }
             if(t.TIMES==1&& t.instruct.First() == 1&&t.instr1Count==0)
@@ -98,7 +100,7 @@ namespace OS
             Console.WriteLine("第{0}优先级队列进程{1}时间片结束",t.queueNum, t.jobsId);
             Thread.Sleep(200);
             t.PSW = "Ready";
-            if (t.isReflect)
+            if (processSchedulingThread.algorithm)
             {
                 if (t.queueNum == 3)
                 {

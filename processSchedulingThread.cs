@@ -30,7 +30,7 @@ namespace project
             while (true)
             {
                 Program.psevent.WaitOne();
-                update(algorithm);
+                if (Program.BackUpJob.Count != 0) { push(Program.BackUpJob[0]);}
                 ProcessScheduling(algorithm);
                 rub = 0;
                 Program.inputLock.Set();
@@ -38,7 +38,7 @@ namespace project
         }
         public static void ProcessScheduling(bool j)
         {
-            if (j) 
+            if (j) //算法判断
             {
                 if(rub==1)
                 {
@@ -77,36 +77,19 @@ namespace project
                 if (readyJob[0].Count != 0) { CPU.usingCpu(readyJob[0][0]); }
             }
         }
+        public static void push(process t)
+        {
+            if (Program.manager.allocate(t))
+            {
+                Program.BackUpJob.Remove(t);
+                t.PSW = "Ready";
+                if (algorithm && readyJob[0].Count == 0) { rub = 1; }
+                processSchedulingThread.readyJob[0].Add(t);
+            }
+        }
         public static void SetSchedulingTime(int num)
         {
             timeslice = num;
-        }
-
-        public static void update(bool j)
-        {
-            for(int i=0;i<Program.BackUpJob.Count;)
-            {
-                process wo = Program.BackUpJob[i];
-                StreamReader strucStream = new StreamReader(Program.filePath + wo.jobsId + ".txt");
-                List<int> p = new List<int>();
-                while (strucStream.Peek() >= 0)
-                {
-                    var eachline = strucStream.ReadLine().Split(',');
-                    int intTmp = int.Parse(eachline[1]);
-                    p.Add(intTmp);
-                }
-                wo.instruct = p;
-                Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
-                if (j) { wo.isReflect=true; }
-                if (readyJob[0].Count == 0) { rub = 1; }
-                if(Program.manager.allocate(wo))
-                {
-                    Program.BackUpJob.Remove(wo);
-                    wo.PSW = "Ready";
-                    readyJob[0].Add(wo);
-                }
-                Thread.Sleep(100);
-            }
         }
     }
 }

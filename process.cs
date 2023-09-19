@@ -15,13 +15,12 @@ namespace project
         public int instructNum;
         public int priority;
         public string PSW = null;//new ready running block exit
-        public string instrucNum=null;
         public List<int> instruct=new List<int>();
         public int TIMES;
         public int queueNum = 0;
-        public bool isReflect = false;
         public int instr1Count = 0;
         public int sAddress=0;
+        public int requiredBlocks= 0;
         public int CompareTo(process other)
         {
             if (this.priority > other.priority) return 1;
@@ -33,8 +32,7 @@ namespace project
             this.jobsId = jobsId;
             this.inTime = inTime;
             this.instructNum = instructNum;
-            this.requiredBlocks = instructNum + 9 / 10;
-            this.allocatedBlocks = new List<int>();
+            this.requiredBlocks = (instructNum + 9) / 10;
             TIMES = processSchedulingThread.timeslice;
 
         }

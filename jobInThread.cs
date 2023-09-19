@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
@@ -23,9 +24,6 @@ namespace project
                 lastWriteTime = lastwritetime;
                 input.Close();
 
-                //读指令
-                processSchedulingThread.update(processSchedulingThread.algorithm);
-                Thread.Sleep(100);
                 Console.WriteLine("作业请求更新结束，结束安排-----");
             }
             else
@@ -43,7 +41,6 @@ namespace project
                     if (tmp.inTime <= clockThread.COUNTTIME)
                     {
                         Console.WriteLine("{0}号作业已经到达申请时间，进入后备队列!", tmp.jobsId);
-                        tmp.PSW = "New";
                         Program.BackUpJob.Add(tmp);
                         Program.tmpBackUpJob.RemoveAt(i);
                         i = -1;
@@ -56,7 +53,24 @@ namespace project
                     }
                 }
                 //读指令
-                processSchedulingThread.update(processSchedulingThread.algorithm);
+                for (int i = 0; i < Program.BackUpJob.Count;i++)
+                {
+                    if (Program.BackUpJob[i].PSW == null)
+                    {
+                        process wo = Program.BackUpJob[i];
+                        wo.PSW = "New";
+                        StreamReader strucStream = new StreamReader(Program.filePath + wo.jobsId + ".txt");
+                        List<int> p = new List<int>();
+                        while (strucStream.Peek() >= 0)
+                        {
+                            var eachline = strucStream.ReadLine().Split(',');
+                            int intTmp = int.Parse(eachline[1]);
+                            p.Add(intTmp);
+                        }
+                        wo.instruct = p;
+                        Console.WriteLine("成功读入{0}作业指令内容------", wo.jobsId);//当作业进入就绪队列后，获得作业指令
+                    }
+                }
             }
             finally
             {

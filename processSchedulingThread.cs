@@ -9,17 +9,17 @@ namespace project
 {
     internal class processSchedulingThread
     {
-        public static List<List<process>>readyJob=new List<List<process>>();
+        public static List<List<process>> readyJob = new List<List<process>>();
 
         public static int timeslice = 3;
-        public Thread ProcessScheduling_thread=null;
+        public Thread ProcessScheduling_thread = null;
         public static int rub = 0;
         public static bool algorithm = true;
         public processSchedulingThread()
         {
-            for(int i=0;i<4;i++)
+            for (int i = 0; i < 4; i++)
             {
-                List<process> tmp=new List<process>();
+                List<process> tmp = new List<process>();
                 readyJob.Add(tmp);
             }
             ProcessScheduling_thread = new Thread(schedule);
@@ -30,7 +30,6 @@ namespace project
             while (true)
             {
                 Program.psevent.WaitOne();
-                if (Program.BackUpJob.Count != 0) { push(Program.BackUpJob[0]);}
                 ProcessScheduling(algorithm);
                 rub = 0;
                 Program.inputLock.Set();
@@ -40,16 +39,14 @@ namespace project
         {
             if (j) //算法判断
             {
-                if(rub==1)
+                if (rub == 1)
                 {
-                    for(int i=1;i<4;i++)
+                    for (int i = 1; i < 4; i++)
                     {
-                        if (readyJob[i].Count!=0)
+                        if (readyJob[i].Count != 0)
                         {
-                            if (readyJob[i][0].instruct[0] ==1)
+                            if (readyJob[i][0].instructionRegister[0] == 1)
                             {
-                                Console.WriteLine("{0}将执行2指令，应优先执行");
-                                Thread.Sleep(1000);
                                 CPU.usingCpu(readyJob[i][0]);
                             }
                             else
@@ -62,7 +59,7 @@ namespace project
                 }
                 else
                 {
-                    for(int i=0;i<4;i++)
+                    for (int i = 0; i < 4; i++)
                     {
                         if (readyJob[i].Count != 0)
                         {
@@ -70,11 +67,18 @@ namespace project
                             return;
                         }
                     }
+                    Console.WriteLine("[CPU 空闲]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[CPU 空闲]");
                 }
             }
             else
             {
                 if (readyJob[0].Count != 0) { CPU.usingCpu(readyJob[0][0]); }
+                else
+                {
+                    Console.WriteLine("[CPU 空闲]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[CPU 空闲]");
+                }
             }
         }
         public static void push(process t)
@@ -83,8 +87,14 @@ namespace project
             {
                 Program.BackUpJob.Remove(t);
                 t.PSW = "Ready";
+                Console.WriteLine("[创建进程:进程 ID:{0},内存块始地址:{1},内存分配方式:First Fit]", t.jobsId, t.sAddress);
+
+                t.inTime = clockThread.COUNTTIME;
+                clockThread.content.Add(clockThread.COUNTTIME + ":[创建进程:进程 ID:" + t.jobsId + ",内存块始地址:" + t.sAddress + ",内存分配方式:First Fit]");
+                clockThread.content.Add(clockThread.COUNTTIME + ":[进入就绪队列:进程 ID:" + t.jobsId + ",待执行的指令数:" + t.instructionRegister.Count() + "]");
                 if (algorithm && readyJob[0].Count == 0) { rub = 1; }
                 processSchedulingThread.readyJob[0].Add(t);
+                Console.WriteLine("[进入就绪队列:进程 ID:{0},待执行的指令数:{1}]", t.jobsId, t.instructionRegister.Count());
             }
         }
         public static void SetSchedulingTime(int num)

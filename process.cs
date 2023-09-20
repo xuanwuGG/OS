@@ -8,26 +8,29 @@ using System.Xml.Serialization;
 
 namespace project
 {
-    internal class process:IComparable<process>
+    internal class process : IComparable<process>
     {
         public int jobsId;
         public int inTime;
+        public int endTime;
+        public int runTime;
         public int instructNum;
         public int priority;
         public string PSW = null;//new ready running block exit
-        public List<int> instruct=new List<int>();
+        public List<int> instructionRegister = new List<int>();
+        public int programCounter = 0;
         public int TIMES;
         public int queueNum = 0;
         public int instr1Count = 0;
-        public int sAddress=0;
-        public int requiredBlocks= 0;
+        public int sAddress = 0;
+        public int requiredBlocks = 0;
         public int CompareTo(process other)
         {
             if (this.priority > other.priority) return 1;
             else return -1;
         }
 
-        public process(int jobsId,  int inTime, int instructNum)
+        public process(int jobsId, int inTime, int instructNum)
         {
             this.jobsId = jobsId;
             this.inTime = inTime;

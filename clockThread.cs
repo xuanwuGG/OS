@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,16 +14,19 @@ namespace project
         public static ReaderWriterLockSlim countlock = new ReaderWriterLockSlim();//对共享区COUNTTIME的互斥锁
         public static int COUNTTIME = 0;//时钟
         public Thread Clock_Thread = null;
+        public static List<string> content = new List<string>();
         public clockThread()
         {
-            Clock_Thread =new Thread(TIME_COUNT);
+            Clock_Thread = new Thread(TIME_COUNT);
             Clock_Thread.Start();
         }
         public static void TIME_COUNT()
         {
-            while(true)
+            FileStream fs = new FileStream(Program.filePath + "output.txt", FileMode.Create);
+            StreamWriter writer = new StreamWriter(fs);
+            while (true)
             {
-                Thread.Sleep(100);//时钟间隔
+                Thread.Sleep(10);//时钟间隔
                 try
                 {
                     countlock.EnterUpgradeableReadLock();
@@ -29,7 +34,7 @@ namespace project
                     {
                         countlock.EnterWriteLock();
                         COUNTTIME++;
-                        Console.WriteLine("Tick tok:"+COUNTTIME.ToString());    
+                        Console.WriteLine("Tick tok:" + COUNTTIME.ToString());
                     }
                     finally
                     {
@@ -40,12 +45,29 @@ namespace project
                         jobInThread.CheckJob();
                         Program.clevent.WaitOne();
                     }
-                    Program.psevent.Set();
-                    Program.clevent.WaitOne();
                 }
                 finally
                 {
                     countlock.ExitUpgradeableReadLock();
+                }
+                Program.psevent.Set();
+                Program.clevent.WaitOne();
+                if (COUNTTIME == 100)
+                {
+                    writer.Close();
+                    fs.Close();
+                }
+                else if (COUNTTIME < 100)
+                {
+                    foreach (string s in content)
+                    {
+                        writer.WriteLine(s);
+                    }
+                    content.Clear();
+                }
+                else
+                {
+                    Console.ReadKey();
                 }
             }
         }

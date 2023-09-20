@@ -13,22 +13,24 @@ namespace project
     internal class Program
     {
         public static string filePath = "D:/input2/";
-        public static string buffer=null;
+        public static object buffer = new object();
+        public static object keboard = new object();
+        public static object screen = new object();
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);
         public static AutoResetEvent inputLock = new AutoResetEvent(false);
         public static AutoResetEvent outputLock = new AutoResetEvent(false);
-        public static List<process> tmpBackUpJob=new List<process>();
-        public static List<process> BackUpJob=new List<process>();
+        public static List<process> tmpBackUpJob = new List<process>();
+        public static List<process> BackUpJob = new List<process>();
         public static memoryManager manager = new memoryManager();
         static void Main(string[] args)
         {
-            clockThread t1=new clockThread();
-            jobInThread t2=new jobInThread();
-            processSchedulingThread t3=new processSchedulingThread();
-            inputBlock_thread t4=new inputBlock_thread();
-            outputBlock_thread t5=new outputBlock_thread(); 
+            clockThread t1 = new clockThread();
+            jobInThread t2 = new jobInThread();
+            processSchedulingThread t3 = new processSchedulingThread();
+            inputBlock_thread t4 = new inputBlock_thread();
+            outputBlock_thread t5 = new outputBlock_thread();
 
         }
     }

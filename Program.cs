@@ -14,7 +14,7 @@ namespace project
     {
         public static string filePath = "D:/input2/";
         public static object buffer = new object();
-        public static object keboard = new object();
+        public static object keyboard = new object();
         public static object screen = new object();
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
@@ -24,6 +24,7 @@ namespace project
         public static List<process> tmpBackUpJob = new List<process>();
         public static List<process> BackUpJob = new List<process>();
         public static memoryManager manager = new memoryManager();
+        public static AutoResetEvent deadLock=new AutoResetEvent(false);
         static void Main(string[] args)
         {
             clockThread t1 = new clockThread();
@@ -31,7 +32,9 @@ namespace project
             processSchedulingThread t3 = new processSchedulingThread();
             inputBlock_thread t4 = new inputBlock_thread();
             outputBlock_thread t5 = new outputBlock_thread();
-
+            resource keyboard = new resource();
+            resource screen = new resource();
+            resource buffer=new resource();
         }
     }
 }

@@ -43,8 +43,8 @@ namespace OS
                 return;
             }
             t.PSW = "Running";
-            Console.WriteLine("[运行进程: 进程 ID:{0},指令类型编号:{1},逻辑地址:,物理地址:{2}]", t.jobsId, t.instructionRegister[t.programCounter], MMU(t));
-            clockThread.content.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:,物理地址:" + MMU(t) + "]");
+            Console.WriteLine("[运行进程: 进程 ID:{0},指令类型编号:{1},逻辑地址:{2},物理地址:{3}]", t.jobsId, t.instructionRegister[t.programCounter], (t.programCounter/10),MMU(t));
+            clockThread.content.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:"+ (t.programCounter / 10 )+ ",物理地址:" + MMU(t) + "]");
             if (t.instructionRegister[t.programCounter] == 0)
             {
                 t.programCounter++;
@@ -64,12 +64,14 @@ namespace OS
             {
                 t.programCounter++;
                 CPU_PRO(t, 2);
+                processSchedulingThread.ProcessScheduling(processSchedulingThread.algorithm);
                 return;
             }
             else
             {
                 t.programCounter++;
                 CPU_PRO(t, 3);
+                processSchedulingThread.ProcessScheduling(processSchedulingThread.algorithm);
                 return;
             }
             t.PSW = "Ready";

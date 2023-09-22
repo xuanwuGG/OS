@@ -24,6 +24,7 @@ namespace project
         public int instr1Count = 0;
         public int sAddress = 0;
         public int requiredBlocks = 0;
+        public process() { }
         public int CompareTo(process other)
         {
             if (this.priority > other.priority) return 1;

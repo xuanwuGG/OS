@@ -33,6 +33,7 @@ namespace project
                 ProcessScheduling(algorithm);
                 rub = 0;
                 Program.inputLock.Set();
+                Program.outputLock.Set();
             }
         }
         public static void ProcessScheduling(bool j)

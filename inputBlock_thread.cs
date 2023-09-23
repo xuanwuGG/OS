@@ -29,15 +29,16 @@ namespace OS
             while (true)
             {
                 Program.inputLock.WaitOne();
-                counting();
-                while (sig == 1 && Monitor.TryEnter(Program.buffer)) { sig = 0; Monitor.Exit(Program.buffer); counting(); }
-                Program.outputLock.Set();
+                counting2();
+               // while (sig == 1 && Monitor.TryEnter(Program.buffer)) { sig = 0; Monitor.Exit(Program.buffer); counting(); }
+                //Program.outputLock.Set();
             }
         }
         public static void counting()
         {
             if (blockJobs1.Count != 0)
             {
+                if (Program.deadlock != 0) { Program.deadlock++; }
                 if (Monitor.TryEnter(Program.keyboard))
                 {
                     Console.WriteLine("[P操作:获取keyboard]");
@@ -80,33 +81,48 @@ namespace OS
         {
             while (true)
             {
-                Program.deadLock.WaitOne();
-                if (blockJobs1.Count != 0)
+                if(blockJobs1.Count!=0)
                 {
-                    if (Monitor.TryEnter(Program.keyboard))
+                    if(Program.deadlock==0) { Program.deadlock++; }
+                    if (Monitor.TryEnter(Program.keyboard)) 
                     {
-                        waitBuffer = blockJobs1[0];
-                        while(!Monitor.TryEnter(Program.buffer))//抢到不放
+                        Console.WriteLine("{0}获取键盘", blockJobs1[0]);
+                        Thread.Sleep(1000);
+                        if (Monitor.TryEnter(Program.buffer))
                         {
-                            Program.deadLock.WaitOne();
-                            if(blockJobs1.Count>1&&waitKeyboard.jobsId!=0&&Monitor.TryEnter(Program.buffer))
+                            Console.WriteLine("{0}获取缓冲区", blockJobs1[0]);
+                            Thread.Sleep(1000);
+                            while (count--!=0)
                             {
-                                waitKeyboard= blockJobs1[1];
+                                Program.inputLock.WaitOne();
+                                Program.readyBlock++;
+                                if(Program.readyBlock==2)
+                                {
+                                    Program.readyBlock = 0;
+                                    Program.clevent.Set();
+                                }
                             }
-                        }
-                    }
-                    else if(Monitor.TryEnter(Program.buffer))
-                    {
-                        while(!Monitor.TryEnter(Program.keyboard))//抢到不放
-                        {
-                            Program.deadLock.WaitOne();
-                            if (blockJobs1.Count > 1 && waitBuffer.jobsId != 0 && Monitor.TryEnter(Program.keyboard))
+                            if(count==0)
                             {
-                                waitBuffer = blockJobs1[1];
+                                count = 3;
+                                Console.WriteLine("3指令运行结束");
+                                processSchedulingThread.readyJob[blockJobs1[0].queueNum].Add(blockJobs1[0]);
+                                blockJobs1.RemoveAt(0);
+                                Thread.Sleep(1000);
                             }
+                            Monitor.Exit(Program.buffer);
+                            Console.WriteLine("退出缓冲区");
                         }
+                        Monitor.Exit(Program.keyboard);
+                        Console.WriteLine("退出键盘");
                     }
-                    //else 既抢不到键盘也抢不到buffer
+                    if (Program.deadlock == 1) { Program.deadlock = 0; }
+                }
+                Program.readyBlock++;
+                if (Program.readyBlock == 2)
+                {
+                    Program.readyBlock = 0;
+                    Program.clevent.Set();
                 }
             }
         }

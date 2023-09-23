@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace project
         public static object buffer = new object();
         public static object keyboard = new object();
         public static object screen = new object();
+        public static int readyBlock = 0;
+        public static int deadlock = 0;
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);
@@ -32,9 +35,7 @@ namespace project
             processSchedulingThread t3 = new processSchedulingThread();
             inputBlock_thread t4 = new inputBlock_thread();
             outputBlock_thread t5 = new outputBlock_thread();
-            resource keyboard = new resource();
-            resource screen = new resource();
-            resource buffer=new resource();
+
         }
     }
 }

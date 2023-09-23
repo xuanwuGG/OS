@@ -52,12 +52,12 @@ namespace project
                 }
                 Program.psevent.Set();
                 Program.clevent.WaitOne();
-                if (COUNTTIME == 100)
+                if (COUNTTIME == 300)
                 {
                     writer.Close();
                     fs.Close();
                 }
-                else if (COUNTTIME < 100)
+                else if (COUNTTIME < 300)
                 {
                     foreach (string s in content)
                     {

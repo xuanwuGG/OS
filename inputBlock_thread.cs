@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ namespace OS
     internal class inputBlock_thread
     {
         public static List<process> blockJobs1 = new List<process>();
-        public static int getKeyboardID = 0;
         public static process getKeyboardProcess =new process();
         public static int count = 3;
         public static int sig = 0;
@@ -28,9 +28,13 @@ namespace OS
             while (true)
             {
                 Program.inputLock.WaitOne();
-                if(blockJobs1.Count!=0)
+                if (!Program.deadlock && blockJobs1.Count != 0)
                 {
                     counting();
+                }
+                if (Program.deadlock && (blockJobs1.Count != 0 || getKeyboardProcess.jobsId != 0))
+                {
+                    counting2();
                 }
                 Program.outputLock.Set();
             }
@@ -38,19 +42,39 @@ namespace OS
 
         public static void counting2()
         {
-            if(Monitor.TryEnter(Program.keyboard))
+            if (Monitor.TryEnter(Program.keyboard))
             {
-                getKeyboardProcess = blockJobs1[0];
+                Console.WriteLine("[P操作:获取keyboard]");
+                clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
+                if (getKeyboardProcess.jobsId == 0){getKeyboardProcess = blockJobs1[0];blockJobs1.RemoveAt(0);}
             }
-            if(Monitor.TryEnter(Program.buffer))
+            else { return; }
+            if (Monitor.TryEnter(Program.buffer))
             {
-                Program.getBufferProcess = blockJobs1[0];
-            }
-            if(getKeyboardProcess.jobsId==Program.getBufferProcess.jobsId)
-            {
-                sig = 1;
+                if (blockJobs1.Count != 0&&getKeyboardProcess.jobsId!=0&& ((new Random()).Next(0, 10) < 7))//调整死锁概率
+                {
+                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    Monitor.Exit(Program.keyboard);
+                    blockJobs1.Insert(1, getKeyboardProcess);
+                    getKeyboardProcess.reset();
+                    Console.WriteLine("[P操作:获取keyboard]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
+                    Monitor.TryEnter(Program.keyboard);
+                }
+                else if(blockJobs1.Count == 0&& getKeyboardProcess.jobsId != 0) 
+                {
+                    blockJobs1.Add(getKeyboardProcess);
+                    getKeyboardProcess.reset();
+                }
                 Console.WriteLine(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
+                if (blockJobs1.Count != 0 && getKeyboardProcess.jobsId != 0)
+                {
+                    Console.WriteLine("检测到死锁");
+                    Console.ReadKey();
+                    return;
+                }
                 while (--count != 0)
                 {
                     Program.outputLock.Set();
@@ -67,26 +91,14 @@ namespace OS
                     processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                     CPU.CPU_REC(tmpWork);
                     count = 3;
+                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
                     Monitor.Exit(Program.keyboard);
+                    Console.WriteLine("[V操作:释放buffer]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放buffer]");
                     Monitor.Exit(Program.buffer);
-                    getKeyboardProcess.reset();
-                    Program.getBufferProcess.reset();
-                    return;
                 }
             }
-            else if (getKeyboardProcess.instructionRegister[getKeyboardProcess.programCounter - 1] == Program.getBufferProcess.instructionRegister[Program.getBufferProcess.programCounter-1])
-            {
-                Console.WriteLine("检测到死锁");
-                Console.ReadKey();
-            }
-        }
-        public static bool deadLockDetection()
-        {
-            if(Program.getBufferProcess!=getKeyboardProcess)
-            {
-                return true;
-            }
-            return false;
         }
         public static void counting()
         {
@@ -95,6 +107,7 @@ namespace OS
                 Console.WriteLine("[P操作:获取keyboard]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
             }
+            else { return; }
             if (Monitor.TryEnter(Program.buffer))
             {
                 sig = 1;

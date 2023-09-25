@@ -18,7 +18,6 @@ namespace project
         public static object keyboard = new object();
         public static object screen = new object();
         public static bool deadlock = true;
-        public static process getBufferProcess = new process();
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);

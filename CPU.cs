@@ -13,11 +13,11 @@ namespace OS
     internal class CPU
     {
         public int ProgramCounter = 0;
-        public static int MMU(process t) { return t.sAddress; }
+        public static int MMU(process t) { return (t.sAddress-1)*1000+5000+ (t.programCounter) * 100; }
         public CPU() { }
         public static void usingCpu(process t)
         {
-            if (t.instructionRegister.Count == t.programCounter)
+            if (t.instructionRegister.Count== t.programCounter)
             {
                 Console.WriteLine("{0}号作业已经完成！", t.jobsId);
 
@@ -43,8 +43,8 @@ namespace OS
                 return;
             }
             t.PSW = "Running";
-            Console.WriteLine("[运行进程: 进程 ID:{0},指令类型编号:{1},逻辑地址:{2},物理地址:{3}]", t.jobsId, t.instructionRegister[t.programCounter], (t.programCounter/10),MMU(t));
-            clockThread.content.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:"+ (t.programCounter / 10 )+ ",物理地址:" + MMU(t) + "]");
+            Console.WriteLine("[运行进程: 进程 ID:{0},指令类型编号:{1},逻辑地址:{2},物理地址:{3}]", t.jobsId, t.instructionRegister[t.programCounter], ((t.programCounter)*100),MMU(t));
+            clockThread.content.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:"+ ((t.programCounter)*100)+ ",物理地址:" + MMU(t) + "]");
             if (t.instructionRegister[t.programCounter] == 0)
             {
                 t.programCounter++;

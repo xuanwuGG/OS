@@ -17,7 +17,7 @@ namespace project
         public static object buffer = new object();
         public static object keyboard = new object();
         public static object screen = new object();
-        public static bool deadlock = true;
+        public static bool deadlock = false;
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);
@@ -29,12 +29,12 @@ namespace project
         public static AutoResetEvent deadLock=new AutoResetEvent(false);
         static void Main(string[] args)
         {
-            clockThread t1 = new clockThread();
-            jobInThread t2 = new jobInThread();
-            processSchedulingThread t3 = new processSchedulingThread();
-            inputBlock_thread t4 = new inputBlock_thread();
-            outputBlock_thread t5 = new outputBlock_thread();
-
+            //clockThread t1 = new clockThread();
+            //jobInThread t2 = new jobInThread();
+            //processSchedulingThread t3 = new processSchedulingThread();
+            //inputBlock_thread t4 = new inputBlock_thread();
+            //outputBlock_thread t5 = new outputBlock_thread();
+            partnerSystem partnermanager=new partnerSystem();
         }
     }
 }

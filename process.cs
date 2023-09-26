@@ -26,15 +26,11 @@ namespace project
         public int sAddress = 0;
         public int requiredBlocks = 0;
         public process() { }
+
         public int CompareTo(process other)
         {
             if (this.priority > other.priority) return 1;
             else return -1;
-        }
-        public void reset()
-        {
-            this.jobsId = 0;
-            this.instructionRegister = new List<int>();
         }
         public process(int jobsId, int inTime, int instructNum)
         {

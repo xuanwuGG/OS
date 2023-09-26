@@ -87,10 +87,10 @@ namespace project
             {
                 Program.BackUpJob.Remove(t);
                 t.PSW = "Ready";
-                Console.WriteLine("[创建进程:进程 ID:{0},内存块始地址:{1},内存分配方式:First Fit]", t.jobsId, t.sAddress);
+                Console.WriteLine("[创建进程:进程 ID:{0},内存块始地址:{1},内存分配方式:First Fit]", t.jobsId, (t.sAddress-1)*1000+5000);
 
                 t.inTime = clockThread.COUNTTIME;
-                clockThread.content.Add(clockThread.COUNTTIME + ":[创建进程:进程 ID:" + t.jobsId + ",内存块始地址:" + t.sAddress + ",内存分配方式:First Fit]");
+                clockThread.content.Add(clockThread.COUNTTIME + ":[创建进程:进程 ID:" + t.jobsId + ",内存块始地址:" + ((t.sAddress - 1) * 1000 + 5000) + ",内存分配方式:First Fit]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[进入就绪队列:进程 ID:" + t.jobsId + ",待执行的指令数:" + t.instructionRegister.Count() + "]");
                 if (algorithm && readyJob[0].Count == 0 && (readyJob[1].Count + readyJob[2].Count + readyJob[3].Count)!=0) { rub = 1; }
                 processSchedulingThread.readyJob[0].Add(t);

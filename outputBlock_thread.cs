@@ -25,8 +25,20 @@ namespace OS
             while (true)
             {
                 Program.outputLock.WaitOne();
-                if (blockJobs2.Count > 0) { counting(); }
-                else if (inputBlock_thread.blockJobs1.Count == 0 )
+                if (!Program.deadlock && blockJobs2.Count != 0)
+                {
+                    counting();
+                }
+                else if (Program.deadlock && (blockJobs2.Count != 0 || getScreen.jobsId != 0))
+                {
+                    counting2();
+                }
+                else if(Program.deadlock&& (blockJobs2.Count != 0 || getScreen.jobsId != 0)||inputBlock_thread.getKeyboardProcess.jobsId!=0)
+                {
+                    Console.WriteLine("[缓冲区无进程]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[缓冲区无进程]");
+                } 
+                else
                 {
                     Console.WriteLine("[缓冲区无进程]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[缓冲区无进程]");
@@ -46,13 +58,13 @@ namespace OS
             else { return; }
             if (Monitor.TryEnter(Program.buffer))
             {
-                if (blockJobs2.Count != 0 && getScreen.jobsId != 0 && ((new Random()).Next(0, 10) < 7))//调整死锁概率
+                if (blockJobs2.Count != 0 && getScreen.jobsId != 0 && ((new Random()).Next(0, 10) < 11))//调整死锁概率
                 {
-                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放screen]");
+                    Console.WriteLine("[V操作:释放screen]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
                     Monitor.Exit(Program.screen);
                     blockJobs2.Insert(1, getScreen);
-                    getScreen.reset();
+                    getScreen = new process();
                     Console.WriteLine("[P操作:获取screen]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取screen]");
                     Monitor.TryEnter(Program.screen);
@@ -60,9 +72,9 @@ namespace OS
                 else if (blockJobs2.Count == 0 && getScreen.jobsId != 0)
                 {
                     blockJobs2.Add(getScreen);
-                    getScreen.reset();
+                    getScreen=new process();
                 }
-                Console.WriteLine(clockThread.COUNTTIME + ":[P操作:获取buffer]");
+                Console.WriteLine("[P操作:获取buffer]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 if (blockJobs2.Count != 0 && getScreen.jobsId != 0)
                 {
@@ -72,8 +84,8 @@ namespace OS
                 }
                 while (--count != 0)
                 {
-                    Program.outputLock.Set();
-                    Program.inputLock.WaitOne();
+                    Program.clevent.Set();
+                    Program.outputLock.WaitOne();
                 }
                 if (count == 0)
                 {
@@ -86,7 +98,7 @@ namespace OS
                     processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                     CPU.CPU_REC(tmpWork);
                     count = 3;
-                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放screen]");
+                    Console.WriteLine("[V操作:释放screen]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
                     Monitor.Exit(Program.screen);
                     Console.WriteLine("[V操作:释放buffer]");

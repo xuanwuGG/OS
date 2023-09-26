@@ -32,7 +32,7 @@ namespace OS
                 {
                     counting();
                 }
-                if (Program.deadlock && (blockJobs1.Count != 0 || getKeyboardProcess.jobsId != 0))
+                else if (Program.deadlock && (blockJobs1.Count != 0 || getKeyboardProcess.jobsId != 0))
                 {
                     counting2();
                 }
@@ -51,13 +51,13 @@ namespace OS
             else { return; }
             if (Monitor.TryEnter(Program.buffer))
             {
-                if (blockJobs1.Count != 0&&getKeyboardProcess.jobsId!=0&& ((new Random()).Next(0, 10) < 7))//调整死锁概率
+                if (blockJobs1.Count != 0&&getKeyboardProcess.jobsId!=0&& ((new Random()).Next(0, 10) < 11))//调整死锁概率
                 {
-                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    Console.WriteLine("[V操作:释放keyboard]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
                     Monitor.Exit(Program.keyboard);
                     blockJobs1.Insert(1, getKeyboardProcess);
-                    getKeyboardProcess.reset();
+                    getKeyboardProcess = new process();
                     Console.WriteLine("[P操作:获取keyboard]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
                     Monitor.TryEnter(Program.keyboard);
@@ -65,9 +65,9 @@ namespace OS
                 else if(blockJobs1.Count == 0&& getKeyboardProcess.jobsId != 0) 
                 {
                     blockJobs1.Add(getKeyboardProcess);
-                    getKeyboardProcess.reset();
+                    getKeyboardProcess=new process();
                 }
-                Console.WriteLine(clockThread.COUNTTIME + ":[P操作:获取buffer]");
+                Console.WriteLine("[P操作:获取buffer]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 if (blockJobs1.Count != 0 && getKeyboardProcess.jobsId != 0)
                 {
@@ -91,7 +91,7 @@ namespace OS
                     processSchedulingThread.readyJob[tmpWork.queueNum].Add(tmpWork);
                     CPU.CPU_REC(tmpWork);
                     count = 3;
-                    Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    Console.WriteLine("[P操作:释放keyboard]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
                     Monitor.Exit(Program.keyboard);
                     Console.WriteLine("[V操作:释放buffer]");
@@ -111,7 +111,7 @@ namespace OS
             if (Monitor.TryEnter(Program.buffer))
             {
                 sig = 1;
-                Console.WriteLine(clockThread.COUNTTIME + ":[P操作:获取buffer]");
+                Console.WriteLine("[P操作:获取buffer]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 while (--count != 0)
                 {
@@ -131,7 +131,7 @@ namespace OS
                     count = 3;
                 }
             }
-            Console.WriteLine(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+            Console.WriteLine("[P操作:释放keyboard]");
             clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
             Monitor.Exit(Program.keyboard);
             if (sig == 1)

@@ -34,7 +34,7 @@ namespace project
             //processSchedulingThread t3 = new processSchedulingThread();
             //inputBlock_thread t4 = new inputBlock_thread();
             //outputBlock_thread t5 = new outputBlock_thread();
-            partnerManager partnermanager=new partnerManager();
+            // partnerManager partnermanager=new partnerManager();
         }
     }
 }

@@ -25,9 +25,11 @@ namespace OS
                 t.runTime = t.endTime - t.inTime;
                 processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
                 processSchedulingThread.rub = 0;//刷新rub标志
-                Program.manager.draw();
-                Program.manager.free(MMU(t));
-                Program.manager.draw();
+                if (Program.partnersystem) { 
+                    Program.partnermanager.draw(); 
+                    Program.partnermanager.free(t); 
+                    Program.partnermanager.draw();}
+                else { Program.manager.draw(); Program.manager.free(t); Program.manager.draw();  }
                 if (Program.BackUpJob.Count != 0) { processSchedulingThread.push(Program.BackUpJob[0]); }
                 processSchedulingThread.ProcessScheduling(processSchedulingThread.algorithm);
                 return;

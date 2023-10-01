@@ -12,48 +12,98 @@ namespace OS
 {
     internal class partnerManager
     {
-        public static List<LinkedList<List<int>>> freeAreas = new List<LinkedList<List<int>>>(5);
-        public static List<LinkedList<List<int>>> allocatedAreas = new List<LinkedList<List<int>>>(5);
+        public static List<List<List<int>>> freeAreas = new List<List<List<int>>>();
+        public static List<List<List<int>>> allocatedAreas = new List<List<List<int>>>();
+        public static int signal = 0;
         public partnerManager()
         {
-            freeAreas[4].AddFirst(new List<int>() { 1,16});
-        }  
-        public static void split(int level)
-        {
-            if (freeAreas[level].Count==0)
+            for(int i = 0; i < 5;i++)
             {
-                if (level==freeAreas.Count()) { Console.WriteLine("作业大小越界！"); throw new NotImplementedException();}
-                else
-                {
-                    split(level + 1);
-                }
+                List<List<int>>tmp1= new List<List<int>>();
+                freeAreas.Add(tmp1);
+                List<List<int>> tmp2 = new List<List<int>>();
+                allocatedAreas.Add(tmp2);
             }
-            List<int> tmp = freeAreas[level].First.Value;
-            int len = (tmp[1] - tmp[0])/2;
-            List<int> first = new List<int>() { { tmp[0] },{ (tmp[0] + len) } };
-            List<int>second=new List<int>() { { (tmp[1] - len) }, (tmp[1]) };
-            freeAreas[level-1].AddLast(first);
-            freeAreas[level - 1].AddLast(second);
+            freeAreas[4].Add(new List<int>() { 1,16});
+        }  
+        public  bool split(int level)
+        {
+            if(level>=5) { Console.WriteLine("暂时无可用空间！");return false; }
+            else if (freeAreas[level].Count == 0) { split(level+1); }
+            if(freeAreas[level].Count == 0) { return false; }
+            else if (signal == level) { return true; }
+            int len = (freeAreas[level][0][1] - freeAreas[level][0][0])/2;
+            List<int>left= new List<int>() { freeAreas[level][0][0], freeAreas[level][0][0]+len };
+            List<int> right = new List<int>() { freeAreas[level][0][1] -len, freeAreas[level][0][1]  };
+            freeAreas[level-1].Add(left);
+            freeAreas[level-1].Add(right);
+            freeAreas[level].RemoveAt(0);
+            return true;
         }
 
-        public static bool allocate(process t)
+        public bool allocate(process t)
         {
             int i = 0;
             while (Math.Pow(2,i++)<t.requiredBlocks) { }
             i--;
-            if (freeAreas[i].Count == 0) { split(i); }
-            if (freeAreas[i].Count == 0) { return false; }
-            allocatedAreas[i].AddLast(freeAreas[i].First.Value);
-            freeAreas[i].RemoveFirst();
+            signal = i;
+            if (freeAreas[i].Count == 0) { if (!split(i)) { return false; } }
+            allocatedAreas[i].Add(freeAreas[i][0]);
+            t.sAddress = freeAreas[i][0][0];
+            freeAreas[i].RemoveAt(0);
+            allocatedAreas[i]=allocatedAreas[i].OrderBy(a => a[0]).ToList();
+            freeAreas[i]=freeAreas[i].OrderBy(a => a[0]).ToList();
             return true;
         }
-        public static void free(int startAddress)
+        public void merge(int level)
         {
-            int i = 10;
-            foreach(var link in allocatedAreas)
+            freeAreas[level] = freeAreas[level].OrderBy(a => a[0]).ToList();
+            if (level >= 4) { return; }
+            int sig = 0;
+            for(int n = 0; n < freeAreas[level].Count-1;n++)
             {
-                if(link.FirstOrDefault)
+                int leftsig = (int)Math.Ceiling((freeAreas[level][n][0] / Math.Pow(2, level + 1)));
+                int rightsig = (int)Math.Ceiling((freeAreas[level][n+1][0] / Math.Pow(2, level + 1)));
+                if (leftsig == rightsig) 
+                { 
+                    sig = 1;
+                    List<int> tmp = new List<int>() { freeAreas[level][n][0], freeAreas[level][n + 1][1] };
+                    freeAreas[level+1].Add(tmp);
+                    freeAreas[level].RemoveAt(n);
+                    freeAreas[level].RemoveAt(n);//删除后位置会前移一位
+                    n = -1;
+                }
             }
+            if (sig == 1) { merge(level+1); }
+        }
+        public void free(process t)
+        {
+            int i = 0;
+            while (Math.Pow(2, i++) < t.requiredBlocks) { }
+            i--;
+            var tmpblock = allocatedAreas[i].FirstOrDefault(a => a[0] == t.sAddress);
+            allocatedAreas[i].Remove(tmpblock);
+            freeAreas[i].Add(tmpblock);
+            allocatedAreas[i]=allocatedAreas[i].OrderBy(a => a[0]).ToList();
+            if(freeAreas[i].Count>1) { freeAreas[i] = freeAreas[i].OrderBy(a => a[0]).ToList(); }
+            merge(i);
+        }
+        public void draw()
+        {
+            int[] painting = new int[16];
+            for (int a = 0; a < allocatedAreas.Count; a++)
+            {
+                for(int b = 0; b < allocatedAreas[a].Count;b++)
+                {
+                    for(int c = allocatedAreas[a][b][0] - 1; c < allocatedAreas[a][b][1]; c++)
+                    {
+                        painting[c] = 1;
+                    }
+                }
+            }
+            Console.Write("空间:");
+            foreach (var i in painting) { Console.Write(" " + i); }
+            Console.WriteLine();
         }
     }
 }

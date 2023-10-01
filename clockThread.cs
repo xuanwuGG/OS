@@ -26,7 +26,7 @@ namespace project
             StreamWriter writer = new StreamWriter(fs);
             while (true)
             {
-                Thread.Sleep(200);//时钟间隔
+                Thread.Sleep(10);//时钟间隔
                 try
                 {
                     countlock.EnterUpgradeableReadLock();

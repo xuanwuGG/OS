@@ -8,6 +8,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace project
 {
@@ -18,6 +19,7 @@ namespace project
         public static object keyboard = new object();
         public static object screen = new object();
         public static bool deadlock = false;
+        public static bool partnersystem = true;
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static AutoResetEvent jievent = new AutoResetEvent(false);
         public static AutoResetEvent psevent = new AutoResetEvent(false);
@@ -26,7 +28,7 @@ namespace project
         public static List<process> tmpBackUpJob = new List<process>();
         public static List<process> BackUpJob = new List<process>();
         public static memoryManager manager = new memoryManager();
-        public static AutoResetEvent deadLock=new AutoResetEvent(false);
+        public static partnerManager partnermanager = new partnerManager();
         static void Main(string[] args)
         {
             //clockThread t1 = new clockThread();
@@ -34,7 +36,8 @@ namespace project
             //processSchedulingThread t3 = new processSchedulingThread();
             //inputBlock_thread t4 = new inputBlock_thread();
             //outputBlock_thread t5 = new outputBlock_thread();
-            // partnerManager partnermanager=new partnerManager();
+            myForm f1=new myForm();
+            Application.Run(f1);
         }
     }
 }

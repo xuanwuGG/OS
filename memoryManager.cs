@@ -45,17 +45,17 @@ namespace OS
             Console.WriteLine("内存空间不足，{0}作业需等待!", t.jobsId);
             return false;
         }
-        public void free(int startAddress)
+        public void free(process t)
         {
             int leftSig = 0;//0表示该空间左边无作业，1则反之，right同理;
             int rightSig = 0;
             int endAddress = 0;
             for (int i = 0; i < allocatedTable.Count; i++)
             {
-                if (allocatedTable[i][0] == startAddress)
+                if (allocatedTable[i][0] == t.sAddress)
                 {
                     endAddress = allocatedTable[i][1];
-                    if (i > 0 && allocatedTable[i - 1][1] == startAddress - 1) { leftSig++; }
+                    if (i > 0 && allocatedTable[i - 1][1] == t.sAddress - 1) { leftSig++; }
                     if (i < allocatedTable.Count - 1 && allocatedTable[i + 1][0] == endAddress + 1) { rightSig++; }
                     allocatedTable.RemoveAt(i);
                     break;
@@ -65,7 +65,7 @@ namespace OS
             {
                 for (int i = 0; i < unallocatedTable.Count; i++)
                 {
-                    if (unallocatedTable[i][1] == startAddress - 1) { startAddress = unallocatedTable[i][0]; unallocatedTable.RemoveAt(i); break; }
+                    if (unallocatedTable[i][1] == t.sAddress - 1) { t.sAddress = unallocatedTable[i][0]; unallocatedTable.RemoveAt(i); break; }
                 }
             }
             if (rightSig == 0)
@@ -75,9 +75,9 @@ namespace OS
                     if (unallocatedTable[i][0] == endAddress + 1) { endAddress = unallocatedTable[i][1]; unallocatedTable.RemoveAt(i); break; }
                 }
             }
-            unallocatedTable.Add(new List<int> { startAddress, endAddress });
-            allocatedTable = allocatedTable.OrderBy(t => t[0]).ToList();
-            unallocatedTable = unallocatedTable.OrderBy(t => t[0]).ToList();
+            unallocatedTable.Add(new List<int> { t.sAddress, endAddress });
+            allocatedTable = allocatedTable.OrderBy(a => a[0]).ToList();
+            unallocatedTable = unallocatedTable.OrderBy(a => a[0]).ToList();
         }
         public void draw()
         {

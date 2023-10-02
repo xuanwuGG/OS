@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace project
 {
-    internal class processSchedulingThread
+    public class processSchedulingThread
     {
         public static List<List<process>> readyJob = new List<List<process>>();
 

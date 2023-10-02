@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OS
 {
-    internal class outputBlock_thread
+    public class outputBlock_thread
     {
         Thread outBlock;
         public static List<process> blockJobs2 = new List<process>();
@@ -43,7 +43,7 @@ namespace OS
                     Console.WriteLine("[缓冲区无进程]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[缓冲区无进程]");
                 }
-                Program.clevent.Set();
+                clockThread.clevent.Set();
             }
         }
 
@@ -84,7 +84,7 @@ namespace OS
                 }
                 while (--count != 0)
                 {
-                    Program.clevent.Set();
+                    clockThread.clevent.Set();
                     Program.outputLock.WaitOne();
                 }
                 if (count == 0)
@@ -121,7 +121,7 @@ namespace OS
                         while (--count != 0)
                         {
                             if (blockJobs2.Count > 1) { sig = 1; }
-                            Program.clevent.Set();
+                            clockThread.clevent.Set();
                             Program.outputLock.WaitOne();
                         }
                         if (count == 0)

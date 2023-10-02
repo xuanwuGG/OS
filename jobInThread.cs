@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace project
 {
-    internal class jobInThread
+    public class jobInThread
     {
         public Thread JobIn_Thread = null;
         public static DateTime lastWriteTime = DateTime.MinValue;
@@ -77,7 +77,7 @@ namespace project
             {
                 Program.jievent.WaitOne();
                 arrangement();
-                Program.clevent.Set();
+                clockThread.clevent.Set();
             }
         }
         public static void CheckJob()

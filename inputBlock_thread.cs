@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OS
 {
-    internal class inputBlock_thread
+    public class inputBlock_thread
     {
         public static List<process> blockJobs1 = new List<process>();
         public static process getKeyboardProcess =new process();

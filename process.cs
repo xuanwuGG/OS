@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace project
 {
-    internal class process : IComparable<process>
+    public class process : IComparable<process>
     {
         public int jobsId;
         public int inTime;

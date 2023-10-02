@@ -46,7 +46,7 @@ namespace OS
             }
             t.PSW = "Running";
             Console.WriteLine("[运行进程: 进程 ID:{0},指令类型编号:{1},逻辑地址:{2},物理地址:{3}]", t.jobsId, t.instructionRegister[t.programCounter], ((t.programCounter)*100),MMU(t));
-            clockThread.content.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:"+ ((t.programCounter)*100)+ ",物理地址:" + MMU(t) + "]");
+            clockThread.content1.Add(clockThread.COUNTTIME + ":[运行进程: 进程 ID:" + t.jobsId + ",指令类型编号:" + t.instructionRegister[t.programCounter] + ",逻辑地址:"+ ((t.programCounter)*100)+ ",物理地址:" + MMU(t) + "]");
             if (t.instructionRegister[t.programCounter] == 0)
             {
                 t.programCounter++;
@@ -87,7 +87,7 @@ namespace OS
                 inputBlock_thread.blockJobs1.Add(t);
                 Console.WriteLine("[阻塞进程: 阻塞队列编号:{0},进程 ID:{1}]", 1, t.jobsId);
 
-                clockThread.content.Add(clockThread.COUNTTIME + ":[阻塞进程: 阻塞队列编号:1,进程 ID:" + t.jobsId + "]");
+                clockThread.content1.Add(clockThread.COUNTTIME + ":[阻塞进程: 阻塞队列编号:1,进程 ID:" + t.jobsId + "]");
             }
             else
             {

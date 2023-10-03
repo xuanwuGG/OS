@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace OS
 {
-    internal class memoryManager
+    public class memoryManager
     {
-        public List<List<int>> allocatedTable;
-        public List<List<int>> unallocatedTable;
+        public static List<List<int>> allocatedTable;
+        public static List<List<int>> unallocatedTable;
+        public static int[] painting;
         public memoryManager()
         {
             allocatedTable = new List<List<int>>();
@@ -30,6 +31,7 @@ namespace OS
                     unallocatedTable[i][0] = unallocatedTable[i][0] + t.requiredBlocks;
                     unallocatedTable = unallocatedTable.OrderBy(m => m[0]).ToList();
                     allocatedTable = allocatedTable.OrderBy(m => m[0]).ToList();
+                    draw();
                     return true;
                 }
                 else if (tmpLen == t.requiredBlocks)
@@ -39,6 +41,7 @@ namespace OS
                     unallocatedTable.RemoveAt(i);
                     unallocatedTable.OrderBy(m => m[0]).ToList();
                     allocatedTable.OrderBy(m => m[0]).ToList();
+                    draw();
                     return true;
                 }
             }
@@ -78,10 +81,11 @@ namespace OS
             unallocatedTable.Add(new List<int> { t.sAddress, endAddress });
             allocatedTable = allocatedTable.OrderBy(a => a[0]).ToList();
             unallocatedTable = unallocatedTable.OrderBy(a => a[0]).ToList();
+            draw();
         }
-        public void draw()
+        public static void draw()
         {
-            int[] painting = new int[16];
+            painting = new int[16];
             for (int a = 0; a < allocatedTable.Count; a++)
             {
                 for (int b = allocatedTable[a][0] - 1; b < allocatedTable[a][1]; b++)
@@ -89,9 +93,6 @@ namespace OS
                     painting[b] = 1;
                 }
             }
-            Console.Write("空间:");
-            foreach (var i in painting) { Console.Write(" " + i); }
-            Console.WriteLine();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace OS
     {
         public static List<List<List<int>>> freeAreas = new List<List<List<int>>>();
         public static List<List<List<int>>> allocatedAreas = new List<List<List<int>>>();
+        static int[] painting;
         public static int signal = 0;
         public partnerManager()
         {
@@ -25,8 +26,23 @@ namespace OS
                 allocatedAreas.Add(tmp2);
             }
             freeAreas[4].Add(new List<int>() { 1,16});
-        }  
-        public  bool split(int level)
+        }
+        public static void draw()
+        {
+            painting = new int[16];
+            for (int a = 0; a < allocatedAreas.Count; a++)
+            {
+                for (int b = 0; b < allocatedAreas[a].Count; b++)
+                {
+                    for (int c = allocatedAreas[a][b][0] - 1; c < allocatedAreas[a][b][1]; c++)
+                    {
+                        painting[c] = 1;
+                    }
+                }
+            }
+        }
+
+        public bool split(int level)
         {
             if(level>=5) { Console.WriteLine("暂时无可用空间！");return false; }
             else if (freeAreas[level].Count == 0) { split(level+1); }
@@ -40,7 +56,6 @@ namespace OS
             freeAreas[level].RemoveAt(0);
             return true;
         }
-
         public bool allocate(process t)
         {
             int i = 0;
@@ -53,6 +68,7 @@ namespace OS
             freeAreas[i].RemoveAt(0);
             allocatedAreas[i]=allocatedAreas[i].OrderBy(a => a[0]).ToList();
             freeAreas[i]=freeAreas[i].OrderBy(a => a[0]).ToList();
+            draw();
             return true;
         }
         public void merge(int level)
@@ -87,23 +103,7 @@ namespace OS
             allocatedAreas[i]=allocatedAreas[i].OrderBy(a => a[0]).ToList();
             if(freeAreas[i].Count>1) { freeAreas[i] = freeAreas[i].OrderBy(a => a[0]).ToList(); }
             merge(i);
-        }
-        public void draw()
-        {
-            int[] painting = new int[16];
-            for (int a = 0; a < allocatedAreas.Count; a++)
-            {
-                for(int b = 0; b < allocatedAreas[a].Count;b++)
-                {
-                    for(int c = allocatedAreas[a][b][0] - 1; c < allocatedAreas[a][b][1]; c++)
-                    {
-                        painting[c] = 1;
-                    }
-                }
-            }
-            Console.Write("空间:");
-            foreach (var i in painting) { Console.Write(" " + i); }
-            Console.WriteLine();
+            draw();
         }
     }
 }

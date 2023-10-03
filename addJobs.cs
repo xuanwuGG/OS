@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OS
 {
-    internal class addJobs
+    public class addJobs
     {
         public static int jobnum = 0;
         public static void add(int num)

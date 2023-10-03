@@ -9,6 +9,7 @@ namespace project
     {
         public Thread JobIn_Thread = null;
         public static DateTime lastWriteTime = DateTime.MinValue;
+        public static List<process> BackUpJob = new List<process>();
         public static void arrangement()
         {
             DateTime lastwritetime = File.GetLastWriteTime(Program.filePath + "jobs-input.txt");
@@ -19,8 +20,8 @@ namespace project
                 {
                     string[] eachline = input.ReadLine().Split(',');
                     Program.tmpBackUpJob.Add(new process(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2])));
-                    Console.WriteLine("[新增作业: 作业编号:{0},请求时间:{1},指令数量:{2}]", int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2]));
-                    clockThread.content.Add(clockThread.COUNTTIME + ":[新增作业: 作业编号:" + int.Parse(eachline[0]) + ",请求时间:" + int.Parse(eachline[1]) + ",指令数量:" + int.Parse(eachline[2]) + "]");
+                    clockThread.content1.Add(clockThread.COUNTTIME + ":[新增作业:" + int.Parse(eachline[0]) + "," + int.Parse(eachline[1]) + "," + int.Parse(eachline[2]) + "]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[新增作业:" + int.Parse(eachline[0]) + "," + int.Parse(eachline[1]) + "," + int.Parse(eachline[2]) + "]");
                 }
                 lastWriteTime = lastwritetime;
                 input.Close();
@@ -35,17 +36,17 @@ namespace project
                     process tmp = Program.tmpBackUpJob[i];
                     if (tmp.inTime <= clockThread.COUNTTIME)
                     {
-                        Program.BackUpJob.Add(tmp);
+                        BackUpJob.Add(tmp);
                         Program.tmpBackUpJob.RemoveAt(i);
                         i = -1;
                     }
                 }
                 //读指令
-                for (int i = 0; i < Program.BackUpJob.Count;)
+                for (int i = 0; i < BackUpJob.Count;)
                 {
-                    if (Program.BackUpJob[i].PSW == null)
+                    if (BackUpJob[i].PSW == null)
                     {
-                        process wo = Program.BackUpJob[i];
+                        process wo = BackUpJob[i];
                         wo.PSW = "New";
                         StreamReader strucStream = new StreamReader(Program.filePath + wo.jobsId + ".txt");
                         List<int> p = new List<int>();
@@ -56,7 +57,7 @@ namespace project
                             p.Add(intTmp);
                         }
                         wo.instructionRegister = p;
-                        processSchedulingThread.push(Program.BackUpJob[0]);
+                        processSchedulingThread.push(BackUpJob[0]);
                     }
                 }
             }

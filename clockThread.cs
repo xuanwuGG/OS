@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OS;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,26 +16,26 @@ namespace project
         public static ReaderWriterLockSlim countlock = new ReaderWriterLockSlim();//对共享区COUNTTIME的互斥锁
         public static int COUNTTIME = 0;//时钟
         public Thread Clock_Thread = null;
+        public static List<string> content = new List<string>();
         public static List<string> content1 = new List<string>();
         public static List<string> content2 = new List<string>();
-        public static AutoResetEvent clevent = new AutoResetEvent(true);
+        public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static ManualResetEvent button=new ManualResetEvent(true);
-
+        public static int endCount = 0;
         public static int getTime() { return COUNTTIME; }
         public clockThread()
         {
             Clock_Thread = new Thread(TIME_COUNT);
             Clock_Thread.Start();
         }
-
         public static void TIME_COUNT()
         {
-            //FileStream fs = new FileStream(Program.filePath + "output.txt", FileMode.Create);
-            //StreamWriter writer = new StreamWriter(fs);
+            FileStream fs = new FileStream(Program.filePath + "output.txt", FileMode.Create);
+            StreamWriter writer = new StreamWriter(fs);
             clevent.WaitOne();
             while (true)
             {
-                //button.WaitOne();
+                button.WaitOne();
                 try
                 {
                     countlock.EnterUpgradeableReadLock();
@@ -59,25 +60,30 @@ namespace project
                 }
                 Program.psevent.Set();
                 clockThread.clevent.WaitOne();
+                if (COUNTTIME > 20 && Program.tmpBackUpJob.Count == 0 && inputBlock_thread.blockJobs1.Count == 0 && outputBlock_thread.blockJobs2.Count == 0 && processSchedulingThread.readyJob[0].Count == 0 && processSchedulingThread.readyJob[1].Count == 0 && processSchedulingThread.readyJob[2].Count == 0 && processSchedulingThread.readyJob[3].Count == 0)
+                {
+                    if (endCount++ == 0)
+                    {
+                        writer.Close();
+                        fs.Close();
+                        string oldFilePath = Program.filePath + "output.txt";
+                        string newFilePath = Program.filePath + "ProcessResults-" + COUNTTIME + "-DJFK.txt";
+                        File.Move(oldFilePath, newFilePath);
+                    }
+                    else if (endCount == 5) { button.Reset(); button.WaitOne(); }
+
+                }
+                else
+                {
+                    foreach (string s in content)
+                    {
+                        writer.WriteLine(s);
+                    }
+                    content.Clear();
+                }
                 Thread.Sleep(1000);//时钟间隔
-                content.Clear();
-                //if (COUNTTIME == 300)
-                //{
-                //    writer.Close();
-                //    fs.Close();
-                //}
-                //else if (COUNTTIME < 300)
-                //{
-                //    foreach (string s in content)
-                //    {
-                //        writer.WriteLine(s);
-                //    }
-                //    content.Clear();
-                //}
-                //else
-                //{
-                //    Console.ReadKey();
-                //}
+                content1.Clear();
+                content2.Clear();
             }
         }
     }

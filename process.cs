@@ -14,6 +14,7 @@ namespace project
         public int jobsId;
         public int inTime;
         public int endTime;
+        public int enterTime;
         public int runTime;
         public int instructNum;
         public int priority;

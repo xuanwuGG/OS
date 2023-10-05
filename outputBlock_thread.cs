@@ -15,6 +15,7 @@ namespace OS
         public static process getScreen = new process();
         public static int count = 3;
         public static int sig = 0;
+        public static bool dead = false;
         public outputBlock_thread()
         {
             outBlock = new Thread(outblock);
@@ -54,7 +55,7 @@ namespace OS
             else { return; }
             if (Monitor.TryEnter(Program.buffer))
             {
-                if (blockJobs2.Count != 0 && getScreen.jobsId != 0 && ((new Random()).Next(0, 10) < 11))//调整死锁概率
+                if (blockJobs2.Count != 0 && getScreen.jobsId != 0 && ((new Random()).Next(0, 10) < 1))//调整死锁概率
                 {
                     clockThread.content2.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
@@ -74,9 +75,18 @@ namespace OS
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 if (blockJobs2.Count != 0 && getScreen.jobsId != 0)
                 {
-                    Console.WriteLine("检测到死锁");
-                    Console.ReadKey();
-                    return;
+                    dead = true;
+                    clockThread.clevent.Set();
+                    Program.outputLock.WaitOne();
+                    clockThread.content2.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放screen]");
+                    Monitor.Exit(Program.screen);
+                    blockJobs2.Insert(1, getScreen);
+                    getScreen = new process();
+                    clockThread.content2.Add(clockThread.COUNTTIME + ":[P操作:获取screen]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取screen]");
+                    Monitor.TryEnter(Program.screen);
+                    dead = false;
                 }
                 while (--count != 0)
                 {

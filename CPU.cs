@@ -13,6 +13,8 @@ namespace OS
     internal class CPU
     {
         public int ProgramCounter = 0;
+        public static string bb1 = "BB1[阻塞队列1,键盘输入:";
+        public static string bb2 = "BB2[阻塞队列2,屏幕显示:";
         public static int MMU(process t) { return (t.sAddress-1)*1000+5000+ (t.programCounter) * 100; }
         public CPU() { }
         public static void usingCpu(process t)
@@ -22,10 +24,11 @@ namespace OS
                 clockThread.content1.Add(clockThread.COUNTTIME + "[终止进程:"+ t.jobsId + "]");
                 clockThread.content.Add(clockThread.COUNTTIME + "[终止进程:" + t.jobsId + "]");
                 t.endTime = clockThread.COUNTTIME;
-                t.runTime = t.endTime - t.inTime;
+                t.runTime = t.endTime - t.enterTime;
                 if (Program.partnersystem) { Program.partnermanager.free(t); }
                 else { Program.manager.free(t); }
                 processSchedulingThread.readyJob[t.queueNum].RemoveAt(0);
+                clockThread.endJobs.Add(t);
                 processSchedulingThread.rub = 0;//刷新rub标志
                 if (jobInThread.BackUpJob.Count != 0) { processSchedulingThread.push(jobInThread.BackUpJob[0]); }
                 processSchedulingThread.ProcessScheduling(processSchedulingThread.algorithm);
@@ -62,12 +65,14 @@ namespace OS
             else if (t.instructionRegister[t.programCounter] == 2)
             {
                 t.programCounter++;
+                bb1 += clockThread.COUNTTIME+","+t.jobsId+"/";
                 CPU_PRO(t, 2);
                 return;
             }
             else
             {
                 t.programCounter++;
+                bb2 += clockThread.COUNTTIME + "," + t.jobsId + "/";
                 CPU_PRO(t, 3);
                 return;
             }

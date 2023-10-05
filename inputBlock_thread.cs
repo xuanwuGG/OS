@@ -14,9 +14,9 @@ namespace OS
     {
         public static List<process> blockJobs1 = new List<process>();
         public static process getKeyboardProcess =new process();
-        public static int count = 3;
-        public static int sig = 0;
-
+        public static int count = 3;//阻塞时间
+        public static int sig = 0;//开始阻塞时间
+        public static bool dead = false;
         Thread inputBlock;
         public inputBlock_thread()
         {
@@ -51,7 +51,7 @@ namespace OS
             else { return; }
             if (Monitor.TryEnter(Program.buffer))
             {
-                if (blockJobs1.Count != 0&&getKeyboardProcess.jobsId!=0&& ((new Random()).Next(0, 10) < 11))//调整死锁概率
+                if (blockJobs1.Count != 0&&getKeyboardProcess.jobsId!=0&& ((new Random()).Next(0, 10) < 1))//调整死锁概率
                 {
                     clockThread.content2.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
@@ -69,11 +69,20 @@ namespace OS
                 }
                 clockThread.content2.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
                 clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取buffer]");
-                if (blockJobs1.Count != 0 && getKeyboardProcess.jobsId != 0)
+                if (blockJobs1.Count != 0 && getKeyboardProcess.jobsId != 0)//死锁解除
                 {
-                    Console.WriteLine("检测到死锁");
-                    Console.ReadKey();
-                    return;
+                    dead = true;
+                    Program.outputLock.Set();
+                    Program.inputLock.WaitOne();
+                    clockThread.content2.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[V操作:释放keyboard]");
+                    Monitor.Exit(Program.keyboard);
+                    blockJobs1.Insert(1, getKeyboardProcess);
+                    getKeyboardProcess = new process();
+                    clockThread.content2.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
+                    clockThread.content.Add(clockThread.COUNTTIME + ":[P操作:获取keyboard]");
+                    Monitor.TryEnter(Program.keyboard);
+                    dead = false;
                 }
                 while (--count != 0)
                 {

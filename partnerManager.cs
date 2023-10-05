@@ -44,7 +44,7 @@ namespace OS
 
         public bool split(int level)
         {
-            if(level>=5) { Console.WriteLine("暂时无可用空间！");return false; }
+            if(level>=5) {return false; }
             else if (freeAreas[level].Count == 0) { split(level+1); }
             if(freeAreas[level].Count == 0) { return false; }
             else if (signal == level) { return true; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
 namespace project
@@ -10,22 +11,26 @@ namespace project
         public Thread JobIn_Thread = null;
         public static DateTime lastWriteTime = DateTime.MinValue;
         public static List<process> BackUpJob = new List<process>();
+        public static long offset=0;
         public static void arrangement()
         {
             DateTime lastwritetime = File.GetLastWriteTime(Program.filePath + "jobs-input.txt");
             if (lastwritetime != lastWriteTime)//判断文件是否更新,更新就进tmp队列
             {
-                StreamReader input = new StreamReader(Program.filePath + "jobs-input.txt");
+                FileStream fs = new FileStream(Program.filePath + "jobs-input.txt", FileMode.Open);
+                fs.Seek(offset, SeekOrigin.Begin);
+                StreamReader input = new StreamReader(fs);
                 while (input.Peek() >= 0)
                 {
                     string[] eachline = input.ReadLine().Split(',');
                     Program.tmpBackUpJob.Add(new process(int.Parse(eachline[0]), int.Parse(eachline[1]), int.Parse(eachline[2])));
                     clockThread.content1.Add(clockThread.COUNTTIME + ":[新增作业:" + int.Parse(eachline[0]) + "," + int.Parse(eachline[1]) + "," + int.Parse(eachline[2]) + "]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[新增作业:" + int.Parse(eachline[0]) + "," + int.Parse(eachline[1]) + "," + int.Parse(eachline[2]) + "]");
+                    offset = fs.Position;
                 }
                 lastWriteTime = lastwritetime;
                 input.Close();
-
+                fs.Close();
             }
 
             try
@@ -57,8 +62,9 @@ namespace project
                             p.Add(intTmp);
                         }
                         wo.instructionRegister = p;
-                        processSchedulingThread.push(BackUpJob[0]);
+                        if (!processSchedulingThread.push(BackUpJob[0])) { i++; }
                     }
+                    else { i++; }
                 }
             }
             finally

@@ -85,7 +85,7 @@ namespace project
                 }
             }
         }
-        public static void push(process t)
+        public static bool push(process t)
         {
             if(Program.partnersystem)
             {
@@ -93,6 +93,7 @@ namespace project
                 {
                     jobInThread.BackUpJob.Remove(t);
                     t.PSW = "Ready";
+                    t.enterTime = clockThread.COUNTTIME;
                     t.inTime = clockThread.COUNTTIME;
                     clockThread.content1.Add(clockThread.COUNTTIME + ":[创建进程:" + t.jobsId + "," + ((t.sAddress - 1) * 1000 + 5000) + ",PartnerSystem]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[创建进程:" + t.jobsId + "," + ((t.sAddress - 1) * 1000 + 5000) + ",PartnerSystem]");
@@ -100,6 +101,7 @@ namespace project
                     clockThread.content.Add(clockThread.COUNTTIME + ":[进入就绪队列:" + t.jobsId + "," + t.instructionRegister.Count() + "]");
                     if (algorithm && readyJob[0].Count == 0 && (readyJob[1].Count + readyJob[2].Count + readyJob[3].Count) != 0) { rub = 1; }
                     processSchedulingThread.readyJob[0].Add(t);
+                    return true;
                 }
             }
             else
@@ -108,15 +110,17 @@ namespace project
                 {
                     jobInThread.BackUpJob.Remove(t);
                     t.PSW = "Ready";
-                    t.inTime = clockThread.COUNTTIME;
+                    t.enterTime = clockThread.COUNTTIME;
                     clockThread.content1.Add(clockThread.COUNTTIME + ":[创建进程:" + t.jobsId + "," + ((t.sAddress - 1) * 1000 + 5000) + ",First Fit]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[创建进程:" + t.jobsId + "," + ((t.sAddress - 1) * 1000 + 5000) + ",First Fit]");
                     clockThread.content1.Add(clockThread.COUNTTIME + ":[进入就绪队列:" + t.jobsId + "," + t.instructionRegister.Count() + "]");
                     clockThread.content.Add(clockThread.COUNTTIME + ":[进入就绪队列:" + t.jobsId + "," + t.instructionRegister.Count() + "]");
                     if (algorithm && readyJob[0].Count == 0 && (readyJob[1].Count + readyJob[2].Count + readyJob[3].Count) != 0) { rub = 1; }
                     processSchedulingThread.readyJob[0].Add(t);
+                    return true;
                 }
             }
+            return false;
         }
         public static void SetSchedulingTime(int num)
         {

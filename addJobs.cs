@@ -31,10 +31,8 @@ namespace OS
             StreamWriter writer = new StreamWriter(Program.filePath + "jobs-input.txt",true);
             for(int i = 0; i < num; i++)
             {
-                int a = new Random(Guid.NewGuid().GetHashCode()).Next(0,2);
-                int strNum;
-                if (a >0) { strNum = 20; }
-                else { strNum = 10; }
+                int a = new Random(Guid.NewGuid().GetHashCode()).Next(1,17);
+                int strNum = a * 10;
                 writer.Write((++jobnum)+","+(clockThread.COUNTTIME)+","+strNum+ "\n" );
                 StreamWriter writer1 = new StreamWriter(Program.filePath + jobnum + ".txt");
                 for(int j = 1; j <= strNum;j++)

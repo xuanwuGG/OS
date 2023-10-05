@@ -45,7 +45,6 @@ namespace OS
                     return true;
                 }
             }
-            Console.WriteLine("内存空间不足，{0}作业需等待!", t.jobsId);
             return false;
         }
         public void free(process t)

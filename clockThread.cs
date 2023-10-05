@@ -22,6 +22,9 @@ namespace project
         public static AutoResetEvent clevent = new AutoResetEvent(false);
         public static ManualResetEvent button=new ManualResetEvent(true);
         public static int endCount = 0;
+        public static bool signal = false;
+        public static int addNum;
+        public static List<process> endJobs=new List<process>();
         public static int getTime() { return COUNTTIME; }
         public clockThread()
         {
@@ -30,7 +33,7 @@ namespace project
         }
         public static void TIME_COUNT()
         {
-            FileStream fs = new FileStream(Program.filePath + "output.txt", FileMode.Create);
+            FileStream fs = new FileStream("D:/output2/tmp.txt", FileMode.Create);
             StreamWriter writer = new StreamWriter(fs);
             clevent.WaitOne();
             while (true)
@@ -64,14 +67,26 @@ namespace project
                 {
                     if (endCount++ == 0)
                     {
+                        string s = "\n";
+                        writer.Write(s);
+                        foreach(var i in endJobs)
+                        {
+                            s = i.endTime + ":["+i.jobsId+":"+i.inTime+","+i.enterTime+","+i.runTime+"]"+"\n";
+                            writer.Write(s);
+                        }
+                        if (CPU.bb1.EndsWith("/")) { CPU.bb1=CPU.bb1.Substring(0,CPU.bb1.Length-1); }
+                        if (CPU.bb2.EndsWith("/")) { CPU.bb2 = CPU.bb2.Substring(0, CPU.bb2.Length - 1); }
+                        CPU.bb1 += "]"+"\n";
+                        CPU.bb2 += "]"+"\n";
+                        writer.Write(CPU.bb1);
+                        writer.Write(CPU.bb2);
                         writer.Close();
                         fs.Close();
-                        string oldFilePath = Program.filePath + "output.txt";
-                        string newFilePath = Program.filePath + "ProcessResults-" + COUNTTIME + "-DJFK.txt";
+                        string oldFilePath = "D:/output2/tmp.txt";
+                        string newFilePath = "D:/output2/ProcessResults-" + COUNTTIME + "-DJFK.txt";
                         File.Move(oldFilePath, newFilePath);
                     }
                     else if (endCount == 5) { button.Reset(); button.WaitOne(); }
-
                 }
                 else
                 {
@@ -80,6 +95,11 @@ namespace project
                         writer.WriteLine(s);
                     }
                     content.Clear();
+                }
+                if (signal)
+                {
+                    addJobs.add(addNum);
+                    signal = false;
                 }
                 Thread.Sleep(1000);//时钟间隔
                 content1.Clear();
